@@ -1,0 +1,7 @@
+# Lean runtime dependencies. These are all that Vercel and the Raspberry Pi need.
+# Voice add-ons (offline speech) live in requirements-voice.txt and are Pi-only.
+fastapi>=0.110
+uvicorn>=0.29
+openpyxl>=3.1
+python-multipart>=0.0.9
+pypdf>=4.0

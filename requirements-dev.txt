@@ -1,0 +1,2 @@
+# Only for running the self-tests:  python marshie.py test
+httpx>=0.27

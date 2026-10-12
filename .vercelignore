@@ -1,0 +1,9 @@
+/.venv
+/.env
+/data
+/voices
+/scripts
+/frontend/node_modules
+/frontend/dist
+/backend/tests
+**/__pycache__

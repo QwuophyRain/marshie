@@ -1,0 +1,5 @@
+# Optional: fully offline speech (Marshie talks with Piper and listens with Vosk).
+# Works on Raspberry Pi 5, Windows, macOS and Linux. Install with:  python marshie.py voice
+# (that command also downloads the voice files, about 120 MB in total).
+piper-tts>=1.3
+vosk>=0.3.44

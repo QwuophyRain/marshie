@@ -1,0 +1,863 @@
+[
+ {
+  "category": "Technology",
+  "question": [
+   "what is technology",
+   "what does technology mean",
+   "give me examples of technology"
+  ],
+  "answer": "Technology is the use of science and clever ideas to make tools and machines that solve problems and make life easier, like phones, computers, bicycles, water pumps and solar panels.",
+  "keywords": [
+   "technology",
+   "tools",
+   "machines",
+   "inventions"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is a computer",
+   "how does a computer work",
+   "what does a computer do"
+  ],
+  "answer": "A computer is an electronic machine that follows instructions to take in information (input), work with it (processing), save it (storage) and show results (output).",
+  "keywords": [
+   "computer",
+   "input",
+   "output",
+   "processing",
+   "storage"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what are the parts of a computer",
+   "what is hardware",
+   "what is the difference between hardware and software"
+  ],
+  "answer": "Hardware is the parts of a computer you can touch, like the screen, keyboard, mouse and the system unit. Software is the programs and apps that tell the hardware what to do.",
+  "keywords": [
+   "hardware",
+   "software",
+   "parts",
+   "computer"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is software",
+   "what is a program",
+   "what is an app",
+   "what is an application"
+  ],
+  "answer": "Software is a set of instructions, or programs, that tell a computer what to do. Apps like a calculator, a game or a web browser are software.",
+  "keywords": [
+   "software",
+   "program",
+   "app",
+   "application"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is a cpu",
+   "what is the processor",
+   "what is the brain of the computer",
+   "what is the central processing unit"
+  ],
+  "answer": "The CPU, or central processing unit, is the brain of the computer. It carries out instructions and does the calculations, very fast.",
+  "keywords": [
+   "cpu",
+   "processor",
+   "brain",
+   "central processing unit"
+  ],
+  "short": "CPU"
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is ram",
+   "what is computer memory",
+   "what is the difference between ram and storage"
+  ],
+  "answer": "RAM is the computer's short-term memory, where it keeps what it's working on right now, and it clears when the power goes off. Storage, like a hard disk or SSD, keeps your files for a long time.",
+  "keywords": [
+   "ram",
+   "memory",
+   "storage",
+   "ssd",
+   "hard disk"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is an input device",
+   "what is an output device",
+   "what are examples of input and output devices"
+  ],
+  "answer": "An input device sends information into the computer, like a keyboard, mouse, microphone and scanner. An output device shows results, like a monitor, printer and speaker.",
+  "keywords": [
+   "input device",
+   "output device",
+   "keyboard",
+   "mouse",
+   "monitor",
+   "printer"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is binary",
+   "how do computers count",
+   "how do computers understand",
+   "what is a bit",
+   "what is a byte"
+  ],
+  "answer": "Computers use binary, which has only two digits, 0 and 1. One binary digit is a bit, and a group of 8 bits is a byte. Everything on a computer, like words, pictures and music, is stored as 0s and 1s.",
+  "keywords": [
+   "binary",
+   "bit",
+   "byte",
+   "0 and 1"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is the internet",
+   "how does the internet work",
+   "what is the web",
+   "what is the world wide web"
+  ],
+  "answer": "The internet is a giant network of computers all over the world connected together so they can share information. The World Wide Web, which you view with a browser, is just one of the things that run on it. Sir Tim Berners-Lee invented the web.",
+  "keywords": [
+   "internet",
+   "web",
+   "network",
+   "www",
+   "tim berners-lee"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is a web browser",
+   "what is a search engine",
+   "what is a website",
+   "what is a url"
+  ],
+  "answer": "A website is a collection of web pages. A browser, like Chrome or Firefox, lets you visit them using an address called a URL. A search engine helps you find pages by typing words.",
+  "keywords": [
+   "browser",
+   "website",
+   "search engine",
+   "url",
+   "chrome"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is wifi",
+   "what is wi-fi",
+   "what is a router",
+   "what is a network"
+  ],
+  "answer": "Wi-Fi lets devices connect to the internet without wires, using radio waves. A router sends the signal. A network is a group of computers and devices that are connected to share information.",
+  "keywords": [
+   "wifi",
+   "router",
+   "network",
+   "wireless"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is the cloud",
+   "what is cloud storage",
+   "what is cloud computing"
+  ],
+  "answer": "The cloud means storing files and running programs on big computers called servers on the internet, instead of only on your own device. That way you can reach them from anywhere.",
+  "keywords": [
+   "cloud",
+   "servers",
+   "storage",
+   "internet"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is coding",
+   "what is programming",
+   "what is a programmer",
+   "what is computer programming"
+  ],
+  "answer": "Coding, or programming, is writing instructions that tell a computer exactly what to do, using a language it understands, like Python or Scratch. It's like writing a very careful recipe!",
+  "keywords": [
+   "coding",
+   "programming",
+   "code",
+   "programmer",
+   "python",
+   "scratch"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is an algorithm",
+   "give me an example of an algorithm"
+  ],
+  "answer": "An algorithm is a step-by-step set of instructions to solve a problem, like a recipe. Brushing your teeth can be an algorithm: wet the brush, add toothpaste, brush all teeth, rinse.",
+  "keywords": [
+   "algorithm",
+   "steps",
+   "instructions",
+   "recipe"
+  ],
+  "short": "step-by-step instructions"
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is a loop in programming",
+   "what is a variable in programming",
+   "what is a function in programming",
+   "what is a condition in coding"
+  ],
+  "answer": "In coding, a variable stores information, a loop repeats actions, a condition (if/else) makes a choice, and a function is a group of instructions you can reuse.",
+  "keywords": [
+   "loop",
+   "variable",
+   "if else",
+   "function",
+   "conditional"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is a bug in coding",
+   "what is debugging",
+   "why is it called a bug",
+   "how do i fix a bug"
+  ],
+  "answer": "A bug is a mistake in a program. Debugging means finding and fixing it. The word became famous in 1947 when engineers found a real moth stuck inside a computer and taped it in their logbook!",
+  "keywords": [
+   "bug",
+   "debug",
+   "error",
+   "moth",
+   "grace hopper"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is python",
+   "what is the python programming language",
+   "why is it called python"
+  ],
+  "answer": "Python is a popular, friendly programming language used for websites, science, data and robots. It was named after the British comedy show Monty Python, not the snake!",
+  "keywords": [
+   "python",
+   "programming language",
+   "monty python"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is scratch",
+   "what is scratch programming",
+   "what is block coding"
+  ],
+  "answer": "Scratch is a free coding language where you snap colourful blocks together to make games, stories and animations. It was made at MIT for kids, and it's a great way to start coding!",
+  "keywords": [
+   "scratch",
+   "blocks",
+   "block coding",
+   "mit"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is html",
+   "what is css",
+   "what is javascript",
+   "how are websites made"
+  ],
+  "answer": "Websites are built with three languages: HTML gives the page its structure, CSS makes it look pretty, and JavaScript makes it interactive. Marshie's face was built that way too!",
+  "keywords": [
+   "html",
+   "css",
+   "javascript",
+   "website",
+   "web development"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is a raspberry pi",
+   "what is raspberry pi",
+   "tell me about raspberry pi"
+  ],
+  "answer": "A Raspberry Pi is a credit-card sized computer that costs very little but can run programs, connect to the internet and control electronics. It's made in the UK to help people learn to code. Helpers like me can even live inside one!",
+  "keywords": [
+   "raspberry pi",
+   "small computer",
+   "single board"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is an arduino",
+   "what is a microbit",
+   "what is a microcontroller",
+   "what is a micro bit"
+  ],
+  "answer": "An Arduino or a BBC micro:bit is a tiny programmable circuit board, called a microcontroller, that can read sensors and control lights, motors and buzzers. It's great for making your own robots and inventions!",
+  "keywords": [
+   "arduino",
+   "microbit",
+   "microcontroller",
+   "sensor"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is a sensor",
+   "what do sensors do",
+   "give me examples of sensors"
+  ],
+  "answer": "A sensor measures something in the world, like light, heat, sound, movement or distance, and sends the information to a computer. Phone cameras, thermometers and automatic doors use sensors.",
+  "keywords": [
+   "sensor",
+   "measure",
+   "temperature sensor",
+   "motion"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is a robot",
+   "how do robots work",
+   "what can robots do",
+   "what are the parts of a robot"
+  ],
+  "answer": "A robot is a machine that can be programmed to do tasks. Most robots have sensors to sense the world, a controller or computer to think, and motors to move. Robots help in factories, hospitals and even on Mars!",
+  "keywords": [
+   "robot",
+   "robots",
+   "sensors",
+   "motors",
+   "controller"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is artificial intelligence",
+   "what is ai",
+   "how does ai work",
+   "are you ai",
+   "are you artificial intelligence"
+  ],
+  "answer": "Artificial intelligence, or AI, is when computers do things that normally need human thinking, like understanding speech, recognising pictures and answering questions. AI learns patterns from lots of examples. I'm a small AI helper, and I learn from my teachers and students!",
+  "keywords": [
+   "artificial intelligence",
+   "ai",
+   "machine",
+   "learning"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is machine learning",
+   "how do machines learn",
+   "how do you learn"
+  ],
+  "answer": "Machine learning is when a computer learns from lots of examples instead of being told every rule. Show it thousands of cat photos and it learns what a cat looks like. I learn from the questions and answers you teach me, too!",
+  "keywords": [
+   "machine learning",
+   "training",
+   "examples",
+   "learn"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is a chatbot",
+   "how does a chatbot work",
+   "how do you work",
+   "how do you answer questions"
+  ],
+  "answer": "A chatbot is a computer program you can talk to. I listen to your question, search all the knowledge my teachers and students have given me, pick the best answer, and say it. When I'm wrong, you can teach me!",
+  "keywords": [
+   "chatbot",
+   "how do you work",
+   "marshie",
+   "program"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is data",
+   "what is a dataset",
+   "why is data important",
+   "what is data collection"
+  ],
+  "answer": "Data is information we collect, like numbers, measurements, words or survey answers. Scientists collect data, put it in tables and charts, and use it to find patterns and answer questions. Your Excel sheets are full of data!",
+  "keywords": [
+   "data",
+   "dataset",
+   "collect",
+   "survey",
+   "information"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is a spreadsheet",
+   "what is microsoft excel",
+   "what is excel",
+   "what are rows and columns"
+  ],
+  "answer": "A spreadsheet, like Microsoft Excel, is a grid of cells made of rows (going across) and columns (going down) where you can store data and do calculations with formulas.",
+  "keywords": [
+   "spreadsheet",
+   "excel",
+   "rows",
+   "columns",
+   "cells",
+   "formula"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is a database",
+   "what is a server"
+  ],
+  "answer": "A database is an organised collection of information that a computer can search quickly, like my memory! A server is a powerful computer that stores things and shares them with other computers.",
+  "keywords": [
+   "database",
+   "server",
+   "storage"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "how do i make a strong password",
+   "what is a strong password",
+   "how do i keep my password safe",
+   "what is a good password"
+  ],
+  "answer": "A strong password is long, at least 12 characters, and mixes words, numbers and symbols. Don't use your name or birthday, don't use the same password everywhere, and never share it, except with a parent or guardian.",
+  "keywords": [
+   "password",
+   "strong password",
+   "safe",
+   "security"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is phishing",
+   "what is a scam",
+   "what is a fake message",
+   "how do i spot a scam"
+  ],
+  "answer": "Phishing is when a fake message, email or website tricks you into giving away private details like passwords. If a message sounds too good to be true, is rushing you, or asks for secrets, don't click and tell a trusted adult.",
+  "keywords": [
+   "phishing",
+   "scam",
+   "fake",
+   "trick",
+   "email"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is cybersecurity",
+   "what is cyber security",
+   "why is cybersecurity important",
+   "how do i stay safe online"
+  ],
+  "answer": "Cybersecurity means protecting computers, phones and information from bad actors. Stay safe by using strong passwords, keeping apps updated, thinking before you click, and never sharing private details like your address, school timetable or photos with strangers.",
+  "keywords": [
+   "cybersecurity",
+   "online safety",
+   "safe online",
+   "protect",
+   "hackers"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is a hacker",
+   "what is hacking",
+   "what is an ethical hacker"
+  ],
+  "answer": "A hacker is someone who gets into computer systems. Bad hackers break the rules to steal or cause harm. Ethical hackers, or 'white hats', are experts hired to find weak spots and fix them before criminals do.",
+  "keywords": [
+   "hacker",
+   "hacking",
+   "ethical hacker",
+   "white hat"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is a virus",
+   "what is malware",
+   "what is a computer virus",
+   "what is antivirus"
+  ],
+  "answer": "A computer virus is a harmful program that can damage files or spread to other computers. Malware is the name for all harmful software. Antivirus programs and updates help protect you, so only download apps from trusted places.",
+  "keywords": [
+   "virus",
+   "malware",
+   "antivirus",
+   "harmful software"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is cyberbullying",
+   "what should i do if someone is mean online",
+   "what is online bullying"
+  ],
+  "answer": "Cyberbullying is being mean, scary or hurtful to someone online. If it happens, don't reply, save the evidence, block the person, and tell a trusted adult like a teacher or parent. It's never your fault, and you should never bully anyone either.",
+  "keywords": [
+   "cyberbullying",
+   "bullying",
+   "online",
+   "mean",
+   "tell an adult"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what should i not share online",
+   "what is personal information",
+   "is it safe to share my address online"
+  ],
+  "answer": "Never share personal information online, like your home address, phone number, passwords, school timetable or photos, with people you don't know in real life. If in doubt, ask a trusted adult first.",
+  "keywords": [
+   "personal information",
+   "privacy",
+   "share",
+   "safe"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is an engineer",
+   "what do engineers do",
+   "what is engineering",
+   "how do i become an engineer"
+  ],
+  "answer": "Engineers use science, maths and creativity to design and build things that solve problems, like roads, bridges, phones, power stations and robots. There are civil, mechanical, electrical, chemical and software engineers, and you can become one by loving maths and science and building things!",
+  "keywords": [
+   "engineer",
+   "engineering",
+   "design",
+   "build",
+   "problem solving"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is the engineering design process",
+   "what are the steps of the design process",
+   "how do engineers design things"
+  ],
+  "answer": "Engineers follow the design process: ask (what is the problem?), imagine (ideas), plan (choose the best idea), create (build a model), test (does it work?) and improve (make it better). It's okay to fail and try again!",
+  "keywords": [
+   "design process",
+   "engineering design",
+   "prototype",
+   "test",
+   "improve"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is a prototype",
+   "what is a model in engineering"
+  ],
+  "answer": "A prototype is the first test version of an invention. Engineers build prototypes to test their ideas and find problems before making the final product.",
+  "keywords": [
+   "prototype",
+   "model",
+   "test",
+   "invention"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is an invention",
+   "what is an inventor",
+   "who is an inventor"
+  ],
+  "answer": "An invention is something new that someone makes to solve a problem or help people. An inventor is a person who thinks of and builds it. You can be an inventor too!",
+  "keywords": [
+   "invention",
+   "inventor",
+   "invent"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what types of bridges are there",
+   "how do bridges work",
+   "what is a suspension bridge",
+   "what is an arch bridge"
+  ],
+  "answer": "Bridges let us cross rivers and valleys. Beam bridges are the simplest, arch bridges push their weight outwards, truss bridges use triangles for strength, and suspension bridges hang the road from cables. Ghana's Adomi Bridge over the Volta River is a suspension bridge.",
+  "keywords": [
+   "bridge",
+   "suspension",
+   "arch",
+   "beam",
+   "truss",
+   "adomi"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "why are triangles strong",
+   "what is the strongest shape",
+   "what is the strongest shape in engineering"
+  ],
+  "answer": "Triangles are very strong because they don't change shape when you push on them. That's why you see triangles in bridges, cranes and roof frames.",
+  "keywords": [
+   "triangle",
+   "strong",
+   "shape",
+   "strongest"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is a solar panel",
+   "how do solar panels work",
+   "how do we get electricity from the sun"
+  ],
+  "answer": "A solar panel is a flat panel of special cells that turn sunlight into electricity. It's clean energy, and Ghana has plenty of sunshine to power homes, schools and farms!",
+  "keywords": [
+   "solar panel",
+   "solar",
+   "sunlight",
+   "electricity",
+   "photovoltaic"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is a wind turbine",
+   "how do wind turbines work"
+  ],
+  "answer": "A wind turbine has big blades that the wind turns, and they spin a generator that makes electricity. It's clean, renewable energy.",
+  "keywords": [
+   "wind turbine",
+   "wind",
+   "generator",
+   "blades"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is hydroelectric power",
+   "what is hydropower",
+   "how does a dam make electricity"
+  ],
+  "answer": "Hydroelectric power uses flowing water to make electricity. Water rushes through a dam and spins turbines that run generators. Ghana's Akosombo Dam on the Volta River is a famous example.",
+  "keywords": [
+   "hydroelectric",
+   "hydropower",
+   "dam",
+   "turbine",
+   "akosombo"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is a generator",
+   "what is a battery",
+   "how does a battery work"
+  ],
+  "answer": "A battery stores chemical energy and changes it into electrical energy when you connect it in a circuit. A generator makes electricity by spinning a magnet near coils of wire.",
+  "keywords": [
+   "battery",
+   "generator",
+   "chemical energy",
+   "electricity"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is a drone",
+   "how do drones work",
+   "what do drones do",
+   "what are drones used for"
+  ],
+  "answer": "A drone is an aircraft without a pilot on board, flown by remote control or by a computer. Drones take photos, help farmers check crops, and in Ghana they deliver medicines and vaccines to faraway clinics!",
+  "keywords": [
+   "drone",
+   "unmanned",
+   "zipline",
+   "delivery",
+   "aircraft"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is a 3d printer",
+   "how does a 3d printer work",
+   "what is 3d printing"
+  ],
+  "answer": "A 3D printer builds a solid object layer by layer from a digital design, often using melted plastic. It can make toys, tools and even prosthetic hands!",
+  "keywords": [
+   "3d printer",
+   "3d printing",
+   "layer",
+   "plastic"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is a satellite",
+   "what is gps",
+   "what do satellites do",
+   "how does gps work"
+  ],
+  "answer": "A satellite is an object that orbits a planet. Satellites give us TV, phone signals, weather pictures and GPS, which tells us where we are. Ghana's first satellite, GhanaSat-1, was built by students at All Nations University and launched in 2017!",
+  "keywords": [
+   "satellite",
+   "gps",
+   "orbit",
+   "ghanasat-1",
+   "all nations university"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "what is mobile money",
+   "what is a smartphone",
+   "how does a mobile phone work"
+  ],
+  "answer": "A smartphone is a pocket computer that can call, text, take photos and run apps. Mobile money lets people send, receive and save money using their phones, which is very popular in Ghana.",
+  "keywords": [
+   "smartphone",
+   "mobile money",
+   "phone",
+   "mobile"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "who invented the computer",
+   "who is the father of the computer",
+   "who is charles babbage"
+  ],
+  "answer": "Charles Babbage, an English mathematician, designed the first mechanical computer, called the Analytical Engine, in the 1830s, so he's called the father of the computer.",
+  "keywords": [
+   "charles babbage",
+   "father of the computer",
+   "analytical engine",
+   "invented"
+  ],
+  "short": "Charles Babbage"
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "who was the first computer programmer",
+   "who is ada lovelace",
+   "who was ada lovelace"
+  ],
+  "answer": "Ada Lovelace was an English mathematician who wrote the first computer program in the 1840s, for Babbage's Analytical Engine. So she's often called the first computer programmer!",
+  "keywords": [
+   "ada lovelace",
+   "first programmer",
+   "analytical engine"
+  ],
+  "short": "Ada Lovelace"
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "who is alan turing",
+   "who was alan turing",
+   "who is grace hopper"
+  ],
+  "answer": "Alan Turing was a British mathematician who helped crack secret codes in World War Two and laid the foundations of computer science and AI. Grace Hopper was an American computer scientist who created one of the first programming languages that used English-like words.",
+  "keywords": [
+   "alan turing",
+   "grace hopper",
+   "computer science",
+   "codebreaker"
+  ]
+ },
+ {
+  "category": "Technology",
+  "question": [
+   "who invented the telephone",
+   "who invented the light bulb",
+   "who invented the aeroplane",
+   "who invented the telephone and light bulb"
+  ],
+  "answer": "Alexander Graham Bell is credited with inventing the telephone, in 1876. Thomas Edison made a long-lasting light bulb in 1879, and the Wright brothers, Orville and Wilbur, flew the first aeroplane in 1903.",
+  "keywords": [
+   "inventor",
+   "telephone",
+   "light bulb",
+   "aeroplane",
+   "bell",
+   "edison",
+   "wright brothers"
+  ]
+ }
+]

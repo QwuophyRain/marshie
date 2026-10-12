@@ -1,0 +1,99 @@
+:root {
+  /* The Ecole Ronsard colours, read from the school logo. theme.js recalculates these from the four colours the
+     teacher panel holds (and from the school's own settings), so these values only matter for the first paint. */
+  --brand: #045870;
+  --ink: #02232d;
+  --ink-soft: #034b5f;
+  --sky: #d6eef5;
+  --sky-deep: #a3d3e0;
+  --paper: #f5fbfc;
+  --line: #bad6de;
+  --pink: #fa9ecc;
+  --pink-deep: #e80075;
+  --pink-wash: #fde2f0;
+  --gold: #fae240;
+  --green: #74bd54;
+  --on-gold: #02232d;
+  --on-green: #02232d;
+  --note: #fdf4b9;
+  --good-bg: #cfe8c4;
+  --berry: #cf2f3a;
+  --mm-line: #86bccb;
+  --mm-shade: #dbebf0;
+  --mm-foot: #edf5f7;
+  --mm-cheek: #f877b8;
+  --bow: #e80075;
+  --bow-dark: #a20052;
+  --c1: #045870; --c2: #fae240; --c3: #e80075; --c4: #74bd54;
+
+  --display: 'Grandstander Variable', 'Atkinson Hyperlegible', 'Trebuchet MS', system-ui, sans-serif;
+  --text: 'Atkinson Hyperlegible', 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+  --press: 0 5px 0 var(--ink);
+  font-size: 19px;
+}
+:root.big { font-size: 23px; }
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body, #app { height: 100%; }
+body {
+  margin: 0;
+  font-family: var(--text);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--sky);
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+button, input, textarea, select { font: inherit; color: inherit; }
+h1, h2, h3 { font-family: var(--display); font-weight: 700; line-height: 1.15; margin: 0; }
+p { margin: 0; }
+
+:focus-visible { outline: 4px solid var(--ink); outline-offset: 3px; box-shadow: 0 0 0 7px #fff; }
+
+/* ---- the school's four dots (teal, yellow, pink, green) on a ribbon, as on the logo */
+.ribbon {
+  height: 18px; background-color: var(--brand);
+  background-image:
+    radial-gradient(circle at 14px 9px, var(--gold) 0 4.5px, transparent 5px),
+    radial-gradient(circle at 42px 9px, var(--pink-deep) 0 4.5px, transparent 5px),
+    radial-gradient(circle at 70px 9px, var(--green) 0 4.5px, transparent 5px);
+  background-size: 84px 18px;
+}
+
+/* ---- toy-like buttons: a hard bottom edge that squashes when pressed */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+  min-height: 3.1rem; padding: .5rem 1.4rem;
+  font-family: var(--display); font-weight: 700; font-size: 1rem; line-height: 1;
+  background: var(--gold); color: var(--on-gold); border: 3px solid var(--ink); border-radius: 999px;
+  box-shadow: var(--press); cursor: pointer; text-decoration: none;
+  transition: transform .08s ease, box-shadow .08s ease, background-color .15s;
+  user-select: none; -webkit-user-select: none; touch-action: manipulation;
+}
+.btn:active:not(:disabled) { transform: translateY(5px); box-shadow: 0 0 0 var(--ink); }
+.btn:disabled { opacity: .5; cursor: not-allowed; box-shadow: 0 2px 0 var(--ink); }
+.btn.pink { background: var(--pink); color: var(--ink); }
+.btn.green { background: var(--green); color: var(--on-green); }
+.btn.berry { background: var(--berry); color: #fff; }
+.btn.white { background: #fff; color: var(--ink); }
+.btn.small { min-height: 2.4rem; padding: .35rem 1rem; font-size: .9rem; box-shadow: 0 4px 0 var(--ink); }
+.btn.small:active:not(:disabled) { transform: translateY(4px); }
+.btn.ghost { background: transparent; color: var(--ink); border-color: transparent; box-shadow: none; text-decoration: underline; text-underline-offset: 4px; }
+.btn.ghost:active:not(:disabled) { transform: none; }
+.btn svg { width: 1.25em; height: 1.25em; flex: none; }
+
+.field {
+  width: 100%; padding: .7rem 1rem; background: #fff;
+  border: 3px solid var(--ink); border-radius: 18px; min-height: 3.1rem;
+}
+textarea.field { resize: vertical; min-height: 5rem; }
+label.lbl { display: block; font-weight: 700; margin-bottom: .3rem; }
+.hint { color: var(--ink-soft); font-size: .9rem; }
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+}

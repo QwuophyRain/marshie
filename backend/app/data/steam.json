@@ -1,0 +1,571 @@
+[
+ {
+  "category": "STEAM",
+  "question": [
+   "what does steam stand for",
+   "what is steam",
+   "what is steam education",
+   "what does s t e a m mean"
+  ],
+  "answer": "At {school}, STEAM stands for Science, Technology, English, Agriculture and Arts, and Mathematics. In other places you may also see it written as Science, Technology, Engineering, Arts and Mathematics. Either way, it means learning these subjects together, so that we can be both clever and creative.",
+  "keywords": [
+   "steam",
+   "science",
+   "technology",
+   "english",
+   "agriculture",
+   "arts",
+   "mathematics"
+  ],
+  "short": "Science, Technology, English, Agriculture and Arts, and Mathematics"
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "why is arts part of steam",
+   "why do we add arts to stem",
+   "what is the difference between stem and steam"
+  ],
+  "answer": "STEM is Science, Technology, Engineering and Maths. STEAM adds Arts, because creativity and design help us invent better things. In our {school} program, STEAM also celebrates English and Agriculture, which are big parts of our school.",
+  "keywords": [
+   "stem",
+   "steam",
+   "arts",
+   "creativity",
+   "design"
+  ]
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "why should i learn science and maths",
+   "why is stem important",
+   "why should i study steam",
+   "why is steam important"
+  ],
+  "answer": "Science, technology, engineering, arts and maths help us solve real problems like clean water, health, energy and farming. They teach us to think carefully, create and work with others, and they open the door to many exciting jobs.",
+  "keywords": [
+   "why learn",
+   "steam",
+   "stem",
+   "important",
+   "careers",
+   "problem solving"
+  ]
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "who was isaac newton",
+   "who is isaac newton",
+   "who discovered gravity"
+  ],
+  "answer": "Sir Isaac Newton (1643 to 1727) was an English scientist who explained gravity and the laws of motion. The story says he started thinking about gravity after seeing an apple fall!",
+  "keywords": [
+   "isaac newton",
+   "gravity",
+   "laws of motion",
+   "apple"
+  ],
+  "short": "Isaac Newton"
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "who was albert einstein",
+   "who is albert einstein",
+   "what is relativity",
+   "what is emc2"
+  ],
+  "answer": "Albert Einstein (1879 to 1955) was a brilliant physicist famous for his theory of relativity and the equation E equals m c squared, which says that mass and energy are connected.",
+  "keywords": [
+   "albert einstein",
+   "relativity",
+   "e=mc2",
+   "physicist"
+  ],
+  "short": "Albert Einstein"
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "who was marie curie",
+   "who is marie curie",
+   "who discovered radioactivity"
+  ],
+  "answer": "Marie Curie (1867 to 1934) was a Polish-French scientist who studied radioactivity. She won two Nobel Prizes, in physics and chemistry, and she was the first woman to win a Nobel Prize.",
+  "keywords": [
+   "marie curie",
+   "radioactivity",
+   "nobel prize",
+   "scientist"
+  ],
+  "short": "Marie Curie"
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "who was galileo",
+   "who invented the telescope",
+   "who is galileo galilei"
+  ],
+  "answer": "Galileo Galilei was an Italian scientist who used a telescope in 1609 to discover the moons of Jupiter and the craters on the Moon. He showed that the Earth moves around the Sun.",
+  "keywords": [
+   "galileo",
+   "telescope",
+   "jupiter",
+   "astronomy"
+  ],
+  "short": "Galileo"
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "who was charles darwin",
+   "who is charles darwin",
+   "what is evolution",
+   "what is natural selection"
+  ],
+  "answer": "Charles Darwin was an English naturalist who wrote 'On the Origin of Species' in 1859. He explained evolution by natural selection: living things that fit their environment best survive and pass on their features, so species change slowly over time.",
+  "keywords": [
+   "charles darwin",
+   "evolution",
+   "natural selection",
+   "origin of species"
+  ]
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "who was louis pasteur",
+   "who discovered penicillin",
+   "who is alexander fleming",
+   "who discovered germs"
+  ],
+  "answer": "Louis Pasteur showed that tiny germs cause many diseases and developed vaccines, and pasteurisation, which makes milk safe. Alexander Fleming discovered penicillin, the first antibiotic, in 1928.",
+  "keywords": [
+   "pasteur",
+   "fleming",
+   "penicillin",
+   "germs",
+   "vaccines",
+   "antibiotic"
+  ]
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "who was thomas edison",
+   "who was nikola tesla",
+   "who is nikola tesla"
+  ],
+  "answer": "Thomas Edison was an American inventor who made a practical light bulb and many other inventions. Nikola Tesla was a Serbian-American engineer who helped develop the alternating current (AC) electricity we use in our homes.",
+  "keywords": [
+   "thomas edison",
+   "nikola tesla",
+   "light bulb",
+   "ac",
+   "electricity",
+   "inventor"
+  ]
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "who was katherine johnson",
+   "who is katherine johnson",
+   "who was the nasa mathematician"
+  ],
+  "answer": "Katherine Johnson was an American mathematician at NASA whose careful calculations helped astronauts travel to space and return safely, including the first American orbit of Earth.",
+  "keywords": [
+   "katherine johnson",
+   "nasa",
+   "mathematician",
+   "astronaut"
+  ],
+  "short": "Katherine Johnson"
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "who was mae jemison",
+   "who is mae jemison",
+   "who was the first african american woman in space"
+  ],
+  "answer": "Dr Mae Jemison is a doctor, engineer and astronaut who became the first African American woman in space, in 1992.",
+  "keywords": [
+   "mae jemison",
+   "astronaut",
+   "first woman",
+   "space",
+   "1992"
+  ],
+  "short": "Mae Jemison"
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "who is wangari maathai",
+   "who was wangari maathai",
+   "what is the green belt movement"
+  ],
+  "answer": "Wangari Maathai (1940 to 2011) from Kenya founded the Green Belt Movement, which planted tens of millions of trees. In 2004, she became the first African woman to win the Nobel Peace Prize.",
+  "keywords": [
+   "wangari maathai",
+   "green belt movement",
+   "trees",
+   "nobel peace prize",
+   "kenya"
+  ],
+  "short": "Wangari Maathai"
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "who is stephen hawking",
+   "who was stephen hawking",
+   "what is a black hole"
+  ],
+  "answer": "Stephen Hawking (1942 to 2018) was a British physicist who studied black holes and the universe. A black hole is a place in space where gravity is so strong that not even light can escape.",
+  "keywords": [
+   "stephen hawking",
+   "black hole",
+   "physicist",
+   "universe"
+  ]
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "what is nasa",
+   "what is the international space station",
+   "what is the iss",
+   "what is a space telescope",
+   "what is the james webb space telescope"
+  ],
+  "answer": "NASA is the American space agency. The International Space Station (ISS) is a science laboratory that orbits Earth about 400 kilometres up, where astronauts from many countries live and work. The James Webb Space Telescope, launched in 2021, looks far into space to see very old galaxies.",
+  "keywords": [
+   "nasa",
+   "iss",
+   "space station",
+   "james webb",
+   "telescope",
+   "space"
+  ]
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "what is an astronaut",
+   "how do astronauts live in space",
+   "what does an astronaut do"
+  ],
+  "answer": "An astronaut is a person trained to travel into space. In space, things float because of microgravity, so astronauts sleep in sleeping bags tied to the wall, and they exercise every day to keep their bones and muscles strong.",
+  "keywords": [
+   "astronaut",
+   "space",
+   "microgravity",
+   "floating"
+  ]
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "what was the first satellite",
+   "what was sputnik",
+   "when was the first satellite launched"
+  ],
+  "answer": "Sputnik 1, launched by the Soviet Union in 1957, was the first artificial satellite in space. It started the Space Age!",
+  "keywords": [
+   "sputnik",
+   "first satellite",
+   "1957",
+   "space age"
+  ],
+  "short": "Sputnik"
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "how far is the moon",
+   "how far is the moon from the earth",
+   "how far away is the moon"
+  ],
+  "answer": "The Moon is about 384,000 kilometres from Earth. That's about 30 Earths lined up in a row!",
+  "keywords": [
+   "moon",
+   "distance",
+   "384000",
+   "far"
+  ]
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "how far is the sun",
+   "how far is the sun from the earth",
+   "how far away is the sun"
+  ],
+  "answer": "The Sun is about 150 million kilometres from Earth. Its light takes about 8 minutes to reach us.",
+  "keywords": [
+   "sun",
+   "distance",
+   "150 million",
+   "far"
+  ]
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "what is a rover",
+   "what is a mars rover",
+   "has anyone been to mars",
+   "what is perseverance"
+  ],
+  "answer": "A rover is a robot vehicle that drives across another planet. NASA's Perseverance rover landed on Mars in 2021 to look for signs of ancient life and collect rock samples. So far only robots, not humans, have visited Mars.",
+  "keywords": [
+   "rover",
+   "mars",
+   "perseverance",
+   "nasa",
+   "robot"
+  ]
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "how do i make a volcano experiment",
+   "how do i make a baking soda volcano",
+   "how do i make a volcano with baking soda"
+  ],
+  "answer": "Make a clay or paper cone around a small bottle. Put in two spoons of baking soda, add a drop of washing-up liquid and some red food colouring, then pour in vinegar and watch it fizz! The acid and the baking soda make carbon dioxide gas bubbles. Always do experiments with a teacher or an adult.",
+  "keywords": [
+   "volcano",
+   "baking soda",
+   "vinegar",
+   "experiment",
+   "fizz"
+  ]
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "how do i make a lemon battery",
+   "how do i make electricity from a lemon",
+   "how do i power a light with fruit"
+  ],
+  "answer": "Push a copper coin or wire and a galvanised (zinc) nail into a lemon, about 2 centimetres apart. The acid in the juice lets electricity flow between the two metals. Join several lemons in a row to power a small LED or a digital clock. Ask a teacher for help.",
+  "keywords": [
+   "lemon battery",
+   "electricity",
+   "copper",
+   "zinc",
+   "experiment",
+   "led"
+  ]
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "how do i make an egg float",
+   "why does an egg float in salt water",
+   "how do i make an egg float in water"
+  ],
+  "answer": "Put an egg in plain water and it sinks. Stir in lots of salt, and the egg floats up! The salty water becomes denser (heavier for its size) than the egg, so it pushes the egg upward.",
+  "keywords": [
+   "egg float",
+   "salt water",
+   "density",
+   "experiment",
+   "buoyancy"
+  ]
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "how do i make a rainbow at home",
+   "how can i make a rainbow",
+   "how do i make a rainbow with water"
+  ],
+  "answer": "Put a glass of water on a sunny windowsill, or shine a torch through a glass of water onto white paper. The water bends the light and splits it into the colours of the rainbow! Never look at the Sun directly.",
+  "keywords": [
+   "make a rainbow",
+   "water",
+   "light",
+   "experiment",
+   "prism"
+  ]
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "how do i make invisible ink",
+   "what is invisible ink"
+  ],
+  "answer": "Write a secret message on paper with a cotton bud dipped in lemon juice and let it dry. To reveal it, ask an adult to warm the paper gently near a lamp or in the sun, and the message turns brown! Always have an adult help with heat.",
+  "keywords": [
+   "invisible ink",
+   "lemon juice",
+   "secret message",
+   "experiment"
+  ]
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "how do i make a paper aeroplane fly far",
+   "how do i make a paper plane",
+   "what makes a plane fly"
+  ],
+  "answer": "Fold your paper plane neatly and symmetrically, with sharp creases, and launch it gently, slightly upward. Planes fly because their wings make lift, the air pushing up, which beats gravity pulling down. Test, change one thing at a time, and test again, just like an engineer!",
+  "keywords": [
+   "paper aeroplane",
+   "paper plane",
+   "lift",
+   "wings",
+   "fly",
+   "experiment"
+  ]
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "what is a growth mindset",
+   "what if i make mistakes",
+   "what if i fail",
+   "how do i not give up"
+  ],
+  "answer": "A growth mindset means believing you can get better with effort. Mistakes are how scientists and inventors learn! When something doesn't work, say 'not yet', try a different way, and keep going. Failing is part of learning.",
+  "keywords": [
+   "growth mindset",
+   "mistakes",
+   "fail",
+   "try again",
+   "not yet",
+   "perseverance"
+  ]
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "what job can i do if i like science",
+   "what can i be when i grow up",
+   "what careers are there in science",
+   "what jobs are there in technology"
+  ],
+  "answer": "There are so many exciting jobs! You could be a doctor, nurse, engineer, scientist, farmer, teacher, programmer, data analyst, architect, pilot, designer or an artist. Follow what you love, work hard and keep learning.",
+  "keywords": [
+   "careers",
+   "jobs",
+   "science",
+   "grow up",
+   "future",
+   "doctor",
+   "engineer",
+   "programmer"
+  ]
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "what is a scientist",
+   "what does a doctor do",
+   "what does a farmer do",
+   "what is a data scientist"
+  ],
+  "answer": "A scientist asks questions and tests ideas to learn how the world works. A doctor helps people stay healthy and treats illnesses. A farmer grows food and looks after animals. A data scientist studies lots of numbers to find patterns and answer questions.",
+  "keywords": [
+   "scientist",
+   "doctor",
+   "farmer",
+   "data scientist",
+   "jobs"
+  ]
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "how can i be a good scientist",
+   "how do i do a science project",
+   "how do i do a science fair project"
+  ],
+  "answer": "Pick a question you're curious about, make a guess (hypothesis), plan a fair test, collect your measurements in a table, make a chart, and say what you found out. Then share it! You can put your data in an Excel sheet and teach me too.",
+  "keywords": [
+   "science project",
+   "science fair",
+   "good scientist",
+   "experiment",
+   "data",
+   "hypothesis"
+  ]
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "what is a chart",
+   "what is a bar chart",
+   "what is a pie chart",
+   "what is a graph",
+   "what is a line graph"
+  ],
+  "answer": "Charts show data as pictures. A bar chart compares amounts using bars, a line graph shows how something changes over time, and a pie chart shows parts of a whole as slices.",
+  "keywords": [
+   "chart",
+   "bar chart",
+   "pie chart",
+   "line graph",
+   "graph",
+   "data"
+  ]
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "how can i save water",
+   "how can i save energy",
+   "how can i help the planet",
+   "how can i be eco friendly"
+  ],
+  "answer": "Turn off taps and lights when you're not using them, plant trees, reuse and recycle, put rubbish in bins, walk or cycle for short trips and share what you've learned with your family.",
+  "keywords": [
+   "save water",
+   "save energy",
+   "help the planet",
+   "eco friendly",
+   "environment"
+  ]
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "what is a food web",
+   "what is photosynthesis in simple words",
+   "what is the carbon cycle"
+  ],
+  "answer": "Everything in nature is connected! Plants make food from sunlight, animals eat plants and each other, and when living things die, the nutrients return to the soil for new plants to use. Carbon moves through air, plants, animals and soil in the carbon cycle.",
+  "keywords": [
+   "food web",
+   "carbon cycle",
+   "connected",
+   "nature",
+   "nutrients"
+  ]
+ },
+ {
+  "category": "STEAM",
+  "question": [
+   "what can i build with recycled materials",
+   "what is upcycling",
+   "how can i make a toy from waste"
+  ],
+  "answer": "Upcycling turns waste into something useful or beautiful. You can make a bottle-top artwork, a plastic-bottle planter, a cardboard robot or a tin-can pencil holder. Always clean the materials and be careful with sharp edges.",
+  "keywords": [
+   "recycled",
+   "upcycling",
+   "waste",
+   "craft",
+   "build",
+   "bottle tops"
+  ]
+ }
+]

@@ -1,0 +1,758 @@
+[
+ {
+  "category": "Our School",
+  "question": [
+   "what is the name of our school",
+   "what is the name of this school",
+   "what school is this",
+   "tell me about our school",
+   "tell me about your school",
+   "tell me about ecole ronsard",
+   "what is ecole ronsard",
+   "who is ecole ronsard",
+   "about our school",
+   "about the school"
+  ],
+  "answer": "Our school is {school}, a bilingual school in East Legon, Accra, Ghana. Children learn in English and French, from creche and nursery up to secondary school.",
+  "keywords": [
+   "school",
+   "ronsard",
+   "ecole",
+   "bilingual"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "what is the school motto",
+   "what is the school slogan",
+   "what does our school stand for",
+   "what is our school about"
+  ],
+  "answer": "{school} describes itself as a community of excellence, diversity and leadership, shaping confident, future-ready global citizens.",
+  "keywords": [
+   "motto",
+   "slogan",
+   "excellence",
+   "leadership",
+   "ronsard"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "where is our school",
+   "where is ecole ronsard",
+   "where is the school",
+   "where is the school located",
+   "what is the address of the school",
+   "what is the school address",
+   "school address",
+   "where is ecole ronsard located"
+  ],
+  "answer": "{school} is at 21-23 Kinshasa Street, East Legon, Accra, Ghana.",
+  "keywords": [
+   "address",
+   "location",
+   "east legon",
+   "accra",
+   "kinshasa street",
+   "ronsard"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "how can i contact the school",
+   "what is the school phone number",
+   "school phone number",
+   "what is the school email",
+   "school email address",
+   "contact ecole ronsard",
+   "how do i call the school",
+   "how do i email the school",
+   "school contact details"
+  ],
+  "answer": "You can call {school} on +233 577 682 060, or write to administration@ecole-ronsard.com.",
+  "keywords": [
+   "contact",
+   "phone",
+   "call",
+   "email",
+   "telephone",
+   "ronsard"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "what is the school website",
+   "school website",
+   "website of ecole ronsard",
+   "what is the school web address",
+   "does the school have a website"
+  ],
+  "answer": "Our website is ecole-ronsard.com. There is also a learning portal at ecole-ronsard.online and a school shop at ecole-ronsard.shop.",
+  "keywords": [
+   "website",
+   "web",
+   "portal",
+   "online",
+   "ronsard"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "does the school have facebook",
+   "does the school have instagram",
+   "school social media",
+   "how do i follow the school",
+   "what is the school instagram"
+  ],
+  "answer": "You can find {school} on Facebook, on Instagram as ecole_ronsard, and on LinkedIn.",
+  "keywords": [
+   "facebook",
+   "instagram",
+   "linkedin",
+   "social media",
+   "follow"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "when was our school founded",
+   "when was ecole ronsard founded",
+   "when was the school established",
+   "when was the school started",
+   "how old is our school",
+   "what year was the school founded",
+   "when did ecole ronsard begin"
+  ],
+  "answer": "{school} was established in 2009.",
+  "keywords": [
+   "founded",
+   "established",
+   "2009",
+   "history",
+   "ronsard"
+  ],
+  "short": "2009"
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "is our school accredited",
+   "what accreditation does the school have",
+   "is ecole ronsard a cambridge school",
+   "what is cambridge accreditation",
+   "what is labelfranceducation",
+   "which exams boards does the school use"
+  ],
+  "answer": "{school} is accredited by Cambridge Assessment International Education and by LabelFrancÉducation. The school's website says it was the first school in West Africa to achieve this dual accreditation.",
+  "keywords": [
+   "accredited",
+   "cambridge",
+   "labelfranceducation",
+   "accreditation",
+   "dual"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "what languages do we learn at school",
+   "is our school bilingual",
+   "what languages are taught at ecole ronsard",
+   "how much french and english do we learn",
+   "what is a bilingual school",
+   "what languages do we speak at school"
+  ],
+  "answer": "{school} is a bilingual school. About 60 percent of lessons are taught in English and 40 percent in French, so that children become fluent in both languages.",
+  "keywords": [
+   "bilingual",
+   "french",
+   "english",
+   "languages",
+   "60",
+   "40"
+  ],
+  "short": "English and French"
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "what levels does the school have",
+   "what classes does ecole ronsard have",
+   "does the school have a nursery",
+   "does the school have a secondary school",
+   "does the school have a primary school",
+   "how many sections are there",
+   "what sections does the school have",
+   "how many campuses does the school have"
+  ],
+  "answer": "{school} has a Creche and Nursery, a Primary school and a Secondary school. The Nursery has its own campus, and Primary and Secondary share another campus.",
+  "keywords": [
+   "nursery",
+   "primary",
+   "secondary",
+   "creche",
+   "campus",
+   "levels",
+   "sections"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "who is the principal",
+   "who is the principal of our school",
+   "who is the head of the school",
+   "who is the headmistress",
+   "who is the headmaster",
+   "who runs the school",
+   "who is the principal of ecole ronsard"
+  ],
+  "answer": "The Principal of {school} is Marie-Patricia Agbenyeke.",
+  "keywords": [
+   "principal",
+   "head",
+   "headmaster",
+   "headmistress",
+   "agbenyeke"
+  ],
+  "short": "Marie-Patricia Agbenyeke"
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "who is on the management team",
+   "who are the school leaders",
+   "school leadership team",
+   "who is the head of academics",
+   "who is the head of finances",
+   "who is the head of human resources",
+   "who leads the school"
+  ],
+  "answer": "The management team is Marie-Patricia Agbenyeke, Principal; Sandra Dickson-Dogbe, Head of Academics; Ken Beke, Head of Finances; and Katia Storti, Head of Human Resources.",
+  "keywords": [
+   "management",
+   "leadership",
+   "academics",
+   "finances",
+   "human resources",
+   "dickson-dogbe",
+   "beke",
+   "storti"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "who is the head of secondary",
+   "who leads the secondary school",
+   "who is the secondary head"
+  ],
+  "answer": "Georgina Arthur is the Head of Secondary.",
+  "keywords": [
+   "head of secondary",
+   "secondary",
+   "arthur"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "who is the head of primary",
+   "who leads the primary school",
+   "who is the primary head",
+   "who is the head of primary french"
+  ],
+  "answer": "Precious Akplome is the Head of Primary, and Kodjogah Aklikpo is the Head of Primary French.",
+  "keywords": [
+   "head of primary",
+   "primary",
+   "akplome",
+   "aklikpo"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "who is the head of nursery",
+   "who leads the nursery",
+   "who is the nursery head",
+   "who is the head of nursery french",
+   "who is the head of nursery english"
+  ],
+  "answer": "Celine Guebo is the Head of Nursery French, and Irene Adu Aboroso is the Head of Nursery English.",
+  "keywords": [
+   "head of nursery",
+   "nursery",
+   "guebo",
+   "adu aboroso"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "what is the mission of our school",
+   "what is our school mission",
+   "what is the school mission",
+   "what is the mission of ecole ronsard"
+  ],
+  "answer": "Our mission is to give children a complete English and French education, and to help them think and create for themselves.",
+  "keywords": [
+   "mission",
+   "purpose",
+   "education"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "what is the vision of our school",
+   "what is our school vision",
+   "what is the school vision",
+   "what is the vision of ecole ronsard"
+  ],
+  "answer": "Our vision is to be a leading international school for bilingual education, innovation and global citizenship.",
+  "keywords": [
+   "vision",
+   "goal",
+   "innovation",
+   "global citizenship"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "what does the principal say",
+   "what is the principals message",
+   "message from the principal",
+   "what is the principal's message"
+  ],
+  "answer": "The Principal's message says that every child is a unique gift, and that our school is rooted in African culture. In our school every child is seen, heard and cherished.",
+  "keywords": [
+   "message",
+   "principal",
+   "unique gift",
+   "african culture",
+   "cherished"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "what makes our school special",
+   "what is the holistic approach",
+   "what is a holistic education",
+   "what is special about ecole ronsard"
+  ],
+  "answer": "We use a holistic approach to education. It builds knowledge, character and a love of learning for life, in a diverse community that is rooted in African culture.",
+  "keywords": [
+   "holistic",
+   "special",
+   "character",
+   "lifelong learning"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "tell me about the nursery",
+   "what do children do in the nursery",
+   "what is the creche",
+   "what is a creche",
+   "nursery activities",
+   "what is the nursery like"
+  ],
+  "answer": "In the Creche and Nursery, children learn through play in both French and English. They do hands-on activities, group games and active play like running, jumping and climbing. It helps their thinking, their feelings, their friendships and their strong little bodies.",
+  "keywords": [
+   "nursery",
+   "creche",
+   "play",
+   "early childhood"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "what time does the nursery close",
+   "does the nursery serve food",
+   "who cooks the nursery meals",
+   "what do nursery children eat"
+  ],
+  "answer": "The nursery is open until 5 pm. Two chefs cook fresh meals at school every day, with fruit and vegetables every day too.",
+  "keywords": [
+   "nursery",
+   "meals",
+   "chefs",
+   "5pm",
+   "food"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "tell me about the primary school",
+   "what do primary children learn",
+   "what is the primary programme",
+   "what is the primary program",
+   "primary curriculum",
+   "what curriculum does the primary school use"
+  ],
+  "answer": "Primary joins the Cambridge International Primary Programme with the French Ministry of Education syllabus. Every class has an English teacher and a French teacher working together.",
+  "keywords": [
+   "primary",
+   "cambridge",
+   "french ministry",
+   "curriculum",
+   "cipp"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "which subjects are taught in english",
+   "which subjects are taught in french",
+   "what subjects are taught in primary",
+   "what subjects do we learn in primary",
+   "what is taught in english at primary",
+   "what is taught in french at primary"
+  ],
+  "answer": "In Primary, Literacy, Mathematics and Science are taught in English. Geography, History, Music and World Religions are taught in French.",
+  "keywords": [
+   "subjects",
+   "primary",
+   "literacy",
+   "mathematics",
+   "science",
+   "geography",
+   "history",
+   "music"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "do we use the abacus at school",
+   "what is the abacus used for at school",
+   "abacus at primary"
+  ],
+  "answer": "In Primary maths, the abacus is a hands-on tool for adding, subtracting and mental maths.",
+  "keywords": [
+   "abacus",
+   "maths",
+   "mental maths",
+   "primary"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "what is french as a second language",
+   "what is english as a second language",
+   "what is fsl",
+   "what is esl",
+   "what is fsl and esl"
+  ],
+  "answer": "French as a Second Language helps English-speaking children join in our bilingual lessons. English as a Second Language does the same for French-speaking children.",
+  "keywords": [
+   "fsl",
+   "esl",
+   "second language",
+   "french",
+   "english"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "tell me about the secondary school",
+   "what streams are there in secondary",
+   "what is the french stream",
+   "what is the english stream",
+   "what is a stream at secondary"
+  ],
+  "answer": "Secondary has two streams. The French Stream follows the French national curriculum and leads to the Brevet des Collèges. The English Stream follows the Cambridge curriculum and the IGCSE.",
+  "keywords": [
+   "secondary",
+   "french stream",
+   "english stream",
+   "brevet",
+   "igcse",
+   "cambridge"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "what are agriculture culture and new technologies",
+   "what special themes are in secondary",
+   "what is new technologies at school",
+   "what is culture at school"
+  ],
+  "answer": "Secondary has three special themes. Agriculture is about sustainable farming, food security and new farming ideas. Culture is about festivals, world books and learning with many cultures. New Technologies mixes learning with digital tools.",
+  "keywords": [
+   "agriculture",
+   "culture",
+   "new technologies",
+   "themes",
+   "secondary"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "what is the brevet",
+   "what is the brevet des colleges",
+   "what is igcse",
+   "what exams do secondary students take"
+  ],
+  "answer": "The Brevet des Collèges is the French national exam for our French Stream. IGCSE is the Cambridge qualification for our English Stream.",
+  "keywords": [
+   "brevet",
+   "igcse",
+   "exams",
+   "cambridge",
+   "french"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "does our school have a farm",
+   "what is the rooftop farm",
+   "do we do farming at school",
+   "agriculture at ecole ronsard",
+   "does the school have a garden",
+   "do we have a school garden"
+  ],
+  "answer": "Yes! Students learn about sustainable farming on our rooftop farm and in the school gardens, from planting seeds to harvesting.",
+  "keywords": [
+   "farm",
+   "rooftop",
+   "garden",
+   "agriculture",
+   "farming",
+   "planting"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "what is career counselling",
+   "does the school have career counselling",
+   "what is career guidance at school"
+  ],
+  "answer": "Career Counselling at {school} covers self-development, leadership, internships and public speaking.",
+  "keywords": [
+   "career",
+   "counselling",
+   "leadership",
+   "internship",
+   "public speaking"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "what sports do we play at school",
+   "does the school have swimming",
+   "does the school have a football field",
+   "what sports does ecole ronsard have",
+   "does the school have a swimming pool",
+   "does the school have an athletics track"
+  ],
+  "answer": "{school} has football, athletics and swimming, with a football field, an athletics track and a swimming pool. The most talented students represent the school at inter-school and national levels.",
+  "keywords": [
+   "sports",
+   "football",
+   "athletics",
+   "swimming",
+   "pool"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "what clubs does the school have",
+   "what extracurricular activities are there",
+   "are there any clubs",
+   "does the school have ballet",
+   "does the school have taekwondo",
+   "does the school teach violin",
+   "what clubs can i join"
+  ],
+  "answer": "Our clubs include Music, Swimming, Football, Ballet, Taekwondo and Violin.",
+  "keywords": [
+   "clubs",
+   "extracurricular",
+   "music",
+   "ballet",
+   "taekwondo",
+   "violin",
+   "swimming",
+   "football"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "does the school have a canteen",
+   "what food does the school serve",
+   "school meals",
+   "food at school",
+   "what is the canteen like"
+  ],
+  "answer": "Yes! The school canteen serves balanced, nutritious meals, and meals can be matched to a child's dietary needs.",
+  "keywords": [
+   "canteen",
+   "food",
+   "meals",
+   "nutrition",
+   "lunch"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "does the school have a bus",
+   "school transport",
+   "how do children get to school",
+   "does the school have buses",
+   "is there parking at school"
+  ],
+  "answer": "Yes. School buses with chaperones bring children to school safely and comfortably. Parents can also park at drop-off and pick-up, with security staff on site.",
+  "keywords": [
+   "bus",
+   "transport",
+   "parking",
+   "chaperones",
+   "security"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "what celebrations does the school have",
+   "what events does the school have",
+   "what is au day",
+   "what is ghana day at school",
+   "does the school celebrate christmas"
+  ],
+  "answer": "{school} celebrates AU Day, Christmas, Family Arts and Crafts, Ghana Day and Parent Workshops.",
+  "keywords": [
+   "celebrations",
+   "events",
+   "au day",
+   "ghana day",
+   "christmas",
+   "arts and crafts"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "does the school have a vacation camp",
+   "tell me about the vacation camp",
+   "holiday camp",
+   "summer camp",
+   "when is the vacation camp",
+   "what happens at the vacation camp"
+  ],
+  "answer": "Every July and August, {school} holds a bilingual vacation camp for children aged 1 to 11, including children from other schools. Mornings are English and French lessons, with a snack at 10 am. Afternoons are lunch, games, sports and outings.",
+  "keywords": [
+   "vacation camp",
+   "holiday camp",
+   "july",
+   "august",
+   "children aged 1 to 11"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "does the school go on field trips",
+   "where are the school trips",
+   "school trips abroad",
+   "what field trips does the school have",
+   "does the school travel"
+  ],
+  "answer": "Field trips at {school} include destinations in Ivory Coast, Senegal, Morocco and France.",
+  "keywords": [
+   "field trips",
+   "trips",
+   "ivory coast",
+   "senegal",
+   "morocco",
+   "france"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "how do i join the school",
+   "how do i apply to ecole ronsard",
+   "how can my child get admission",
+   "what is the admission process",
+   "how do i enrol",
+   "how can i apply",
+   "how do i register my child"
+  ],
+  "answer": "To join, first complete the online application form and upload the documents asked for. Next there is an interview. Then successful families get an offer and instructions to finish enrolling. You can start on the Admission page at ecole-ronsard.com.",
+  "keywords": [
+   "admission",
+   "apply",
+   "enrol",
+   "join",
+   "application",
+   "interview"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "where can i buy school uniform",
+   "does the school have a shop",
+   "school uniform",
+   "where do i buy the pe kit",
+   "what is the school shop"
+  ],
+  "answer": "School uniforms and PE kits for Nursery, Primary and Secondary are sold in the school shop at ecole-ronsard.shop.",
+  "keywords": [
+   "uniform",
+   "shop",
+   "pe kit",
+   "sportswear"
+  ]
+ },
+ {
+  "category": "Our School",
+  "question": [
+   "what does each letter in steam stand for",
+   "what do the letters in steam mean",
+   "what is the s in steam",
+   "what is the t in steam",
+   "what is the e in steam",
+   "what is the a in steam",
+   "what is the m in steam",
+   "what are the steam subjects",
+   "which subjects are in our steam program"
+  ],
+  "answer": "In our {school} STEAM program, S is for Science, T is for Technology, E is for English, A is for Agriculture and Arts, and M is for Mathematics.",
+  "keywords": [
+   "steam",
+   "letters",
+   "science",
+   "technology",
+   "english",
+   "agriculture",
+   "arts",
+   "mathematics"
+  ],
+  "short": "Science, Technology, English, Agriculture and Arts, and Mathematics"
+ }
+]
