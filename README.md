@@ -1,6 +1,6 @@
 # Marshie
 
-Marshie is a marshmallow with a young girl's voice, made for the **Ecole Ronsard STEAM Program 2026** (Science, Technology, English, Agriculture & Arts, and Mathematics). Children talk or type to her. She answers from what she knows (maths, English, literature, science, technology, Ghana and world history, geography, arts, STEAM, and facts about Ecole Ronsard itself), shows how she feels with her face, and learns whatever the students and teachers teach her: Excel sheets, pictures, recordings, videos, PDF and Word files.
+Marshie is a marshmallow with an automated voice, made for the **Ecole Ronsard STEAM Program 2026** (Science, Technology, English, Agriculture & Arts, and Mathematics). Children talk or type to her. She answers from what she knows (maths, English, literature, science, technology, Ghana and world history, geography, arts, STEAM, and facts about Ecole Ronsard itself), shows how she feels with her face, and learns whatever the students and teachers teach her: Excel sheets, pictures, recordings, videos, PDF and Word files.
 
 She wakes up with this greeting, written on the screen and spoken aloud:
 
