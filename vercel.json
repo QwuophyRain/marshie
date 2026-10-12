@@ -3,7 +3,10 @@
   "buildCommand": "cd frontend && npm install && npm run build",
   "outputDirectory": "frontend/dist",
   "rewrites": [
-    { "source": "/api/:path*", "destination": "/api/index" }
+    {
+      "source": "/api/:rest*",
+      "destination": "/api/index?__p=:rest*"
+    }
   ],
   "functions": {
     "api/index.py": {

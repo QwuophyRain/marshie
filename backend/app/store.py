@@ -240,6 +240,7 @@ class Store:
             "created": int(raw.get("created") or _now()),
             "media": media,                                   # ids of pictures / sound shown with the answer
             "group": str(raw.get("group") or ""),             # the file or document this came from
+            "upload": str(raw.get("upload") or ""),           # the Excel upload that added it (so the whole upload can be undone)
             "kind": "passage" if raw.get("kind") == "passage" else "",
             "mood": mood if mood in MOODS else "",
         }
@@ -436,11 +437,13 @@ class Store:
             self.save()
 
     # ----- datasets (student-gathered tables)
-    def add_dataset(self, name: str, columns: list[str], rows: list[list], source: str) -> dict:
+    def add_dataset(self, name: str, columns: list[str], rows: list[list], source: str, upload: str = "") -> dict:
         with self.lock:
             self.state["datasets"] = [d for d in self.state["datasets"] if _norm(d["name"]) != _norm(name)]
             ds = {"id": f"d-{uuid.uuid4().hex[:8]}", "name": name, "columns": columns,
                   "rows": rows, "source": source, "created": _now()}
+            if upload:
+                ds["upload"] = upload
             self.state["datasets"].append(ds)
             self.save()
             return ds
@@ -473,11 +476,47 @@ class Store:
             if self.state.setdefault("unknown", {}).pop(_norm(question)[:200], None) is not None:
                 self.save()
 
-    def log_upload(self, filename: str, summary: dict) -> None:
+    def log_upload(self, filename: str, summary: dict, undo: dict | None = None) -> str:
+        """Remember an upload. `undo` says what it added: {"batch": id} (Excel), {"media": id} or {"document": id}."""
+        uid = "u-" + uuid.uuid4().hex[:8]
         with self.lock:
-            self.state["uploads"].append({"ts": _now(), "filename": filename, **summary})
+            rec = {"id": uid, "ts": _now(), "filename": filename, **summary}
+            if undo:
+                rec["undo"] = undo
+            self.state["uploads"].append(rec)
             del self.state["uploads"][:-200]
             self.save()
+        return uid
+
+    def undo_upload(self, upload_id: str) -> dict | None:
+        """Take back everything one upload added. Things the upload only replaced (a table or file with the same name) are
+        not brought back, and facts that were already known before it are left alone. None if there is nothing to undo."""
+        with self.lock:
+            rec = next((u for u in self.state["uploads"] if u.get("id") == upload_id), None)
+            if not rec or rec.get("undone") or not rec.get("undo"):
+                return None
+            what = rec["undo"]
+            facts = tables = files = 0
+            if what.get("batch"):
+                before = len(self.state["entries"])
+                self.state["entries"] = [e for e in self.state["entries"] if e.get("upload") != what["batch"]]
+                facts += before - len(self.state["entries"])
+                before = len(self.state["datasets"])
+                self.state["datasets"] = [d for d in self.state["datasets"] if d.get("upload") != what["batch"]]
+                tables += before - len(self.state["datasets"])
+            if what.get("media"):
+                n = sum(1 for e in self.state["entries"] if e.get("group") == what["media"])
+                if self.delete_media(what["media"]):
+                    files += 1
+                    facts += n
+            if what.get("document"):
+                n = sum(1 for e in self.state["entries"] if e.get("group") == what["document"])
+                if self.delete_document(what["document"]):
+                    files += 1
+                    facts += n
+            rec["undone"] = _now()
+            self.save()
+            return {"facts": facts, "tables": tables, "files": files}
 
     # ----- settings / stats
     def get_setting(self, key: str, default: Any = None) -> Any:

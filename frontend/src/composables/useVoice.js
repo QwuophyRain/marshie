@@ -296,6 +296,43 @@ async function listenServer(setStop) {
   })
 }
 
+/** What went wrong the last time the browser tried to listen. The Teacher panel explains it in plain words. */
+export const listenIssue = reactive({ code: '', at: 0 })
+
+/** Which browser this is, and whether it can use the speech service that listening needs. */
+export function browserInfo() {
+  const ua = typeof navigator !== 'undefined' ? navigator.userAgent || '' : ''
+  if (typeof navigator !== 'undefined' && navigator.brave) {
+    return { id: 'brave', name: 'Brave', works: false,
+      note: 'Brave switches off the Google speech service that listening needs, so listening fails here even when you are online. Open Marshie in Google Chrome or Microsoft Edge, or install the offline listener below.' }
+  }
+  if (/Firefox\//.test(ua)) {
+    return { id: 'firefox', name: 'Firefox', works: false, note: 'Firefox cannot listen to speech. Use Google Chrome or Microsoft Edge, or install the offline listener below.' }
+  }
+  if (/Edg\//.test(ua)) return { id: 'edge', name: 'Microsoft Edge', works: true, note: '' }
+  if (/OPR\/|Vivaldi|SamsungBrowser/.test(ua)) {
+    return { id: 'other', name: 'this browser', works: false,
+      note: 'Opera, Vivaldi and some other browsers do not include the speech service. Use Google Chrome or Microsoft Edge, or install the offline listener below.' }
+  }
+  if (/Chrome\//.test(ua)) return { id: 'chrome', name: 'Chrome', works: true, note: '' }
+  if (/Safari\//.test(ua)) {
+    return { id: 'safari', name: 'Safari', works: false,
+      note: 'Safari only listens when Dictation is switched on (System Settings, Keyboard, Dictation) and is often unreliable. Use Google Chrome, or install the offline listener below.' }
+  }
+  return { id: 'unknown', name: 'this browser', works: true, note: '' }
+}
+
+/** Plain words for the Teacher panel about why listening failed. */
+export function listenAdvice(code) {
+  const b = browserInfo()
+  if (code === 'network') {
+    return b.note || 'The browser could not reach its speech service. This is not your internet being down: a VPN, a firewall or school network, a privacy or ad blocker, or a browser that does not include the service (such as Brave, Arc or Chromium) can stop it. Try Google Chrome without a VPN, or install the offline listener below.'
+  }
+  if (code === 'service-not-allowed') return b.note || 'The browser refused to use speech recognition. Try Google Chrome, or install the offline listener below.'
+  if (code === 'not-allowed') return 'The microphone is blocked. Click the padlock or microphone icon in the address bar, choose Allow for the microphone, then reload. On a Mac also check System Settings, Privacy & Security, Microphone, and switch the browser on.'
+  return ''
+}
+
 function listenBrowser(setStop) {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition
   if (!SR) return Promise.reject(new Error('This browser can’t listen yet. Please type your question.'))
@@ -318,10 +355,15 @@ function listenBrowser(setStop) {
       }
       rec.onerror = (e) => {
         liveText.value = ''
-        if (e.error === 'language-not-supported' && lang !== 'en-US') { retried = true; return run('en-US') }
+        // Some voice-recognition services do not know every English variety (such as Ghana English): try plain US English once.
+        if ((e.error === 'language-not-supported' || e.error === 'network') && lang !== 'en-US') { retried = true; return run('en-US') }
         if (e.error === 'no-speech' || e.error === 'aborted') return resolve('')
-        if (e.error === 'not-allowed' || e.error === 'service-not-allowed') return reject(new Error('I need to use the microphone. Please allow it, then tap the microphone again.'))
-        if (e.error === 'network') return reject(new Error('Listening needs the internet on this browser. You can type your question instead.'))
+        listenIssue.code = e.error
+        listenIssue.at = Date.now()
+        if (e.error === 'not-allowed') return reject(new Error('I need to use the microphone. Please allow it in the browser, then try again. (Teachers: Teachers, Voice and screen, Listening has help.)'))
+        if (e.error === 'service-not-allowed' || e.error === 'network') {
+          return reject(new Error('Listening is not working in this browser, but it is not your internet. Please type your question. (Teachers: open Teachers, Voice and screen, Listening to fix it.)'))
+        }
         reject(new Error('I couldn’t hear that. Please try again or type your question.'))
       }
       rec.onend = () => { if (!retried) { liveText.value = ''; resolve(text) } }

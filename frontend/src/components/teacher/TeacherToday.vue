@@ -30,6 +30,21 @@ async function approve(entry) {
 async function remove(entry) {
   if (await guard(() => api.deleteEntry(entry.id))) { say('Deleted.'); await refresh() }
 }
+
+// Undo takes back everything one upload added. It asks twice, because it cannot itself be undone.
+const sure = ref('')
+async function undo(u) {
+  if (sure.value !== u.id) { sure.value = u.id; setTimeout(() => { if (sure.value === u.id) sure.value = '' }, 5000); return }
+  sure.value = ''
+  const res = await guard(() => api.undoUpload(u.id))
+  if (!res) return
+  const parts = []
+  if (res.facts) parts.push(`${res.facts} ${res.facts === 1 ? 'thing' : 'things'}`)
+  if (res.tables) parts.push(`${res.tables} data ${res.tables === 1 ? 'table' : 'tables'}`)
+  if (res.files) parts.push(`${res.files === 1 ? 'the file' : res.files + ' files'}`)
+  say(`Undone. Marshie has forgotten ${parts.join(' and ') || 'it'}.`)
+  await refresh()
+}
 </script>
 
 <template>
@@ -124,12 +139,21 @@ async function remove(entry) {
     <div v-if="ov.uploads.length" class="tp-block">
       <h4>Recent uploads</h4>
       <ul class="tp-list">
-        <li v-for="u in ov.uploads" :key="u.ts + u.filename" class="tp-item">
+        <li v-for="u in ov.uploads" :key="u.id || u.ts + u.filename" class="tp-item">
           <span class="main"><b>{{ u.filename }}</b><br />
-            <span class="meta">{{ when(u.ts) }}: {{ u.added }} new, {{ u.duplicates }} already known<template v-if="u.datasets">, {{ u.datasets }} data {{ u.datasets === 1 ? 'table' : 'tables' }}</template><template v-if="u.errors">, {{ u.errors }} rows skipped</template></span>
+            <span class="meta">{{ when(u.ts) }}: {{ u.added }} new, {{ u.duplicates }} already known<template v-if="u.datasets">, {{ u.datasets }} data {{ u.datasets === 1 ? 'table' : 'tables' }}</template><template v-if="u.errors">, {{ u.errors }} rows skipped</template><template v-if="u.undone">. Undone</template></span>
+          </span>
+          <span v-if="u.can_undo" class="acts">
+            <button type="button" class="btn small" :class="sure === u.id ? 'berry' : 'white'" @click="undo(u)">
+              {{ sure === u.id ? 'Yes, undo it' : 'Undo' }}
+            </button>
           </span>
         </li>
       </ul>
+      <p class="hint">
+        <b>Undo</b> takes back everything that upload added: its facts, tables, pictures and recordings. Anything Marshie already knew before is kept.
+        It cannot bring back something the upload replaced (a table or document with the same name).
+      </p>
     </div>
   </div>
 </template>

@@ -55,7 +55,11 @@ ADMIN_PIN = env("ADMIN_PIN", "2468")
 PIN_IS_DEFAULT = ADMIN_PIN == "2468"
 # Signs teacher sessions. A blank or copied-from-the-example key must never be trusted as a secret.
 _key = env("SECRET_KEY")
-SECRET_KEY = _key if _key and not _key.lower().startswith("change-me") else "marshie-" + ADMIN_PIN
+SECRET_KEY_SET = bool(_key and not _key.lower().startswith("change-me"))
+SECRET_KEY = _key if SECRET_KEY_SET else "marshie-" + ADMIN_PIN
+# Online, anyone can reach the site. With the starting PIN or a guessable key a stranger could open the Teacher panel,
+# so it stays locked until the owner has set both in the Vercel settings.
+ADMIN_LOCKED = IS_VERCEL and (PIN_IS_DEFAULT or not SECRET_KEY_SET)
 
 # The school colours (read from the logo): teal, a button yellow, a pink and a green. Teachers can change them.
 DEFAULT_THEME = {"primary": "#045870", "button": "#fae240", "highlight": "#e80075", "success": "#74bd54"}

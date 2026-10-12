@@ -107,6 +107,136 @@ def test_template_upload_and_dataset_questions():
     assert "5" in one["answer"], one
 
 
+def test_undo_an_upload():
+    h = login()
+    # a fact that was already known stays when the upload that repeated it is undone
+    client.post("/api/admin/entries", json={"question": "What does the pond heron eat?", "answer": "The pond heron eats small fish.",
+                                            "category": "Animals"}, headers=h)
+    t = client.get("/api/admin/template", params={"kind": "all", "columns": "Student,Reading", "dataset_name": "Rain gauge", "rows": 10}, headers=h)
+    wb = load_workbook(io.BytesIO(t.content))
+    qa, da = wb["Q&A"], wb["Data"]
+    qa["B3"], qa["C3"] = "What does the pond heron eat?", "The pond heron eats small fish."
+    qa["B4"], qa["C4"] = "Where does the pond heron sleep?", "The pond heron sleeps in the tall trees."
+    for i, row in enumerate([("Ama", 12), ("Kofi", 7)], 3):
+        for j, v in enumerate(row, 1):
+            da.cell(row=i, column=j, value=v)
+    buf = io.BytesIO()
+    wb.save(buf)
+    done = client.post("/api/admin/upload", headers=h, data={"commit": "true"},
+                       files={"file": ("undo-me.xlsx", buf.getvalue(), "application/octet-stream")}).json()
+    assert done["added"] == 1 and done["duplicates"] == 1 and done["datasets_added"] == 1, done
+
+    def row(name):
+        return next(u for u in client.get("/api/admin/overview", headers=h).json()["uploads"] if u["filename"] == name)
+    up = row("undo-me.xlsx")
+    assert up["can_undo"] and up["id"].startswith("u-") and "undo" not in up
+    assert "tall trees" in client.post("/api/ask", json={"question": "Where does the pond heron sleep?"}).json()["answer"]
+
+    assert client.post(f"/api/admin/uploads/{up['id']}/undo").status_code == 401           # teachers only
+    r = client.post(f"/api/admin/uploads/{up['id']}/undo", headers=h)
+    assert r.status_code == 200 and r.json() == {"ok": True, "facts": 1, "tables": 1, "files": 0}, r.text
+    assert "tall trees" not in client.post("/api/ask", json={"question": "Where does the pond heron sleep?"}).json()["answer"]
+    assert "small fish" in client.post("/api/ask", json={"question": "What does the pond heron eat?"}).json()["answer"]
+    assert all(d["name"] != "Rain gauge" for d in client.get("/api/admin/overview", headers=h).json()["datasets"])
+    assert not row("undo-me.xlsx")["can_undo"]
+    assert client.post(f"/api/admin/uploads/{up['id']}/undo", headers=h).status_code == 404   # already undone
+    assert client.post("/api/admin/uploads/u-nothing/undo", headers=h).status_code == 404
+
+    # a picture: the file and what Marshie learned about it go away together
+    m = client.post("/api/admin/media", headers=h, files={"file": ("zebra.png", tiny_png(), "image/png")},
+                    data={"title": "Undo zebra", "say": "A zebra has black and white stripes."}).json()
+    mid = m["media"]["id"]
+    assert client.get(f"/api/media/{mid}").status_code == 200
+    r = client.post(f"/api/admin/uploads/{row('zebra.png')['id']}/undo", headers=h)
+    assert r.status_code == 200 and r.json()["files"] == 1 and r.json()["facts"] >= 1, r.text
+    assert client.get(f"/api/media/{mid}").status_code == 404
+    assert not client.post("/api/ask", json={"question": "show me the undo zebra"}).json()["media"]
+
+    # a document
+    d = client.post("/api/admin/document", headers=h, data={"commit": "true", "title": "Undo notes",
+                    "text": "The school library opens at seven in the morning and closes at four in the afternoon every day."}).json()
+    assert d["added"] >= 1
+    name = next(u for u in client.get("/api/admin/overview", headers=h).json()["uploads"] if u.get("kind") == "document" and u["filename"] == "Undo notes")
+    assert client.post(f"/api/admin/uploads/{name['id']}/undo", headers=h).json()["files"] == 1
+    assert all(i["title"] != "Undo notes" for i in client.get("/api/admin/library", headers=h).json()["items"])
+
+
+def test_vercel_rewrite_gives_the_api_the_right_address():
+    """vercel.json sends /api/... to one function. Whichever address that function is handed, the API must answer."""
+    from app.vercel_path import VercelPath
+    web = TestClient(VercelPath(app))
+    # the runtime hands over only the rewrite target (/api/index) and the real address in ?__p=
+    r = web.post("/api/index?__p=admin/login", json={"pin": "4321"})
+    assert r.status_code == 200 and r.json()["token"], r.text
+    assert web.post("/api/index?__p=admin/login", json={"pin": "0000"}).status_code == 401      # not "Method Not Allowed"
+    assert web.get("/api/index?__p=health").json()["name"] == "Marshie"
+    # other query values survive, and the helper values do not leak into the app
+    q = web.get("/api/index?__p=quiz&category=Science&level=1&rest=quiz")
+    assert q.status_code == 200 and q.json()["question"], q.text
+    h = {"X-Admin-Token": r.json()["token"]}
+    assert web.get("/api/index?__p=admin/overview", headers=h).status_code == 200
+    # only the captured part arrives (Vercel added it by itself)
+    assert web.post("/api/index?rest=admin/login", json={"pin": "4321"}).status_code == 200
+    # the runtime hands over the real address as well: still fine, with or without the helper value
+    assert web.post("/api/admin/login", json={"pin": "4321"}).status_code == 200
+    assert web.post("/api/admin/login?__p=admin/login", json={"pin": "4321"}).status_code == 200
+    assert web.get("/api/health").status_code == 200
+    # a helper value that was never filled in is ignored, and so is a strange one
+    assert web.get("/api/health?__p=:rest*").status_code == 200
+    assert web.get("/api/health?__p=../../etc").status_code in (200, 404)
+
+
+def test_vercel_mode_switches_the_address_fix_on():
+    """On Vercel (the VERCEL variable is set) the app itself puts the real address back, so the login works."""
+    import subprocess
+    code = (
+        "from fastapi.testclient import TestClient\n"
+        "from app.main import app\n"
+        "c = TestClient(app)\n"
+        "print(c.post('/api/index?__p=admin/login', json={'pin': '4321'}).status_code,"
+        " c.post('/api/index?__p=admin/login', json={'pin': '1'}).status_code,"
+        " c.get('/api/index?__p=health').status_code,"
+        " c.post('/api/admin/login', json={'pin': '4321'}).status_code)\n"
+    )
+    env = {**os.environ, "VERCEL": "1", "DATA_DIR": tempfile.mkdtemp(prefix="marshie_vercel_"), "ADMIN_PIN": "4321"}
+    out = subprocess.run([sys.executable, "-c", code], env=env, cwd=str(Path(__file__).resolve().parents[1]),
+                         capture_output=True, text=True, timeout=120)
+    assert out.stdout.split()[-4:] == ["200", "401", "200", "200"], out.stdout + out.stderr
+    # and off Vercel the same unusual address is NOT silently accepted
+    env.pop("VERCEL")
+    out = subprocess.run([sys.executable, "-c", code], env=env, cwd=str(Path(__file__).resolve().parents[1]),
+                         capture_output=True, text=True, timeout=120)
+    assert out.stdout.split()[-4] == "405", out.stdout + out.stderr
+
+
+def test_online_teacher_panel_stays_locked_until_pin_and_key_are_set():
+    """On Vercel the site is public, so the starting PIN or a missing secret key must never open the Teacher panel."""
+    import subprocess
+    code = (
+        "import hashlib, hmac, base64, json, time\n"
+        "from fastapi.testclient import TestClient\n"
+        "from app.main import app\n"
+        "c = TestClient(app)\n"
+        "r1 = c.post('/api/admin/login', json={'pin': '2468'}).status_code\n"
+        "r2 = c.get('/api/admin/overview', headers={'X-Admin-Token': 'forged'}).status_code\n"
+        "r3 = c.post('/api/admin/login', json={'pin': '9137'}).status_code\n"
+        "print(r1, r2, r3, c.get('/api/health').status_code)\n"
+    )
+    here = str(Path(__file__).resolve().parents[1])
+
+    def run(extra):
+        env = {k: v for k, v in os.environ.items() if k not in ("ADMIN_PIN", "SECRET_KEY")}
+        env.update({"VERCEL": "1", "DATA_DIR": tempfile.mkdtemp(prefix="marshie_lock_"), **extra})
+        out = subprocess.run([sys.executable, "-c", code], env=env, cwd=here, capture_output=True, text=True, timeout=120)
+        return out.stdout.split()[-4:], out.stdout + out.stderr
+
+    assert run({})[0] == ["403", "403", "403", "200"], run({})[1]                                   # nothing set
+    assert run({"ADMIN_PIN": "2468", "SECRET_KEY": "x" * 30})[0][0] == "403"                         # still the starting PIN
+    assert run({"ADMIN_PIN": "9137"})[0][2] == "403"                                                 # PIN set, no secret key
+    got, why = run({"ADMIN_PIN": "9137", "SECRET_KEY": "x" * 30})
+    assert got == ["401", "401", "200", "200"], why                                                  # both set: opens normally
+
+
 def test_export_backup_and_restore():
     h = login()
     x = client.get("/api/admin/export", params={"format": "xlsx"}, headers=h)

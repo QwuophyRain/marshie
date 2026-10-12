@@ -1,6 +1,6 @@
 # Marshie
 
-Marshie is a marshmallow with an automated voice, made for the **Ecole Ronsard STEAM Program 2026** (Science, Technology, English, Agriculture & Arts, and Mathematics). Children talk or type to her. She answers from what she knows (maths, English, literature, science, technology, Ghana and world history, geography, arts, STEAM, and facts about Ecole Ronsard itself), shows how she feels with her face, and learns whatever the students and teachers teach her: Excel sheets, pictures, recordings, videos, PDF and Word files.
+Marshie is a marshmallow with a young girl's voice, made for the **Ecole Ronsard STEAM Program 2026** (Science, Technology, English, Agriculture & Arts, and Mathematics). Children talk or type to her. She answers from what she knows (maths, English, literature, science, technology, Ghana and world history, geography, arts, STEAM, and facts about Ecole Ronsard itself), shows how she feels with her face, and learns whatever the students and teachers teach her: Excel sheets, pictures, recordings, videos, PDF and Word files.
 
 She wakes up with this greeting, written on the screen and spoken aloud:
 
@@ -87,7 +87,7 @@ To get a more lifelike voice:
 
 Good to know:
 
-- Listening in Chrome or Edge uses the browser's online speech recognition, so it needs the internet. Firefox has none and Safari's is unreliable. The offline listener (Vosk) works without the internet but shows the words only after the child has finished speaking.
+- Listening in Chrome or Edge uses the browser's online speech recognition, so it needs the internet. Firefox has none, Brave switches it off, and Safari's is unreliable (see "Listening says it needs the internet" below). The offline listener (Vosk) works without the internet but shows the words only after the child has finished speaking.
 - She does not wake up to "Hey Marshie". Browsers cannot safely listen all the time, so children press **Talk with me**, or use the auto-start setting above.
 - She answers each question on its own. A follow-up like "and what about Kenya?" only works when the paid AI is on, because the AI is given the recent conversation. Her own knowledge needs a full question.
 - In a noisy hall the microphone will pick up other people. For a busy fair, use a headset microphone or let children press the button for each question.
@@ -97,13 +97,14 @@ Good to know:
 Click **Teachers** at the top right and type the PIN (`ADMIN_PIN` in `.env`, starts as 2468, please change it).
 
 - **Today** shows what she knows, anything waiting for your approval, and *Questions Marshie could not answer*, each with a **Teach the answer** button. A switch makes children's teaching wait for your OK first.
+  Under **Recent uploads** each Excel sheet, picture, recording or document has an **Undo** button (it asks twice). It takes back everything that one upload added: the facts, the data tables, the file itself. Facts she already knew before are kept, and Undo cannot bring back something the upload *replaced* (a table or document with the same name). Uploads made before this feature existed have no Undo; delete their items in **What Marshie knows** instead.
 - **Add data** is the place for everything else. Choose files, or drop them on the box, as many as you like at once. She shows you each one before it is added:
   - **Excel sheets** (made in the next tab, filled in by students). She shows what she found, which rows need fixing and a few things she would learn.
   - **Pictures** (png, jpg, webp, gif). Children ask "show me the school gate" and the picture appears in the chat. Big photos are shrunk for you.
   - **Recordings** (mp3, wav, m4a, ogg, webm) and **videos** (mp4, webm). Children ask "play the school bell" and a player appears. You can also record your own voice right there. Type or paste what the recording says, or press **Write it out for me** (needs `python marshie.py voice`), and children can then ask about the words inside it.
   - **Documents** (PDF, Word, PowerPoint, plain text, web pages). She cuts them into short passages and reads the right passage when someone asks. Adding the same file again replaces the earlier copy.
   - **Pasted text**, for a page of a textbook or school notes.
-  - **A backup** made by this panel (.json or .zip). Adding it restores what is inside.
+  - **A backup** made by this panel (.json or .zip). Adding it adds what is inside to what she already knows. It does not remove anything, so to go back to an earlier state use **Undo** on the upload, or stop Marshie and delete the `data` folder to start from nothing.
 - **Excel sheets** makes the template for students (pick the sheet type, class, subject and columns). It has instructions, an example row and subject drop-downs.
   - *Questions and answers* and *Facts* sheets become things she can answer.
   - *Data* sheets become tables. Children can ask "What is the average Week 2 height in the plant data?" or "Who has the highest Week 1?".
@@ -152,10 +153,16 @@ On Vercel: **Add New, Project**, import the repository, leave the framework as *
 
 | Name | Value |
 |---|---|
-| `ADMIN_PIN` | your teacher PIN |
-| `SECRET_KEY` | a long random string: `python -c "import secrets;print(secrets.token_hex(24))"` |
+| `ADMIN_PIN` | your teacher PIN (**required**: not 2468) |
+| `SECRET_KEY` | **required**: a long random string: `python3 -c "import secrets;print(secrets.token_hex(24))"` |
 | `SCHOOL_NAME`, `BOT_NAME`, `EVENT_NAME`, `GREETING` | optional (the school's name and greeting are already set to Ecole Ronsard) |
 | `LLM_PROVIDER`, `LLM_API_KEY` | optional (or add the key later in the Teacher panel) |
+
+To take back a bad update later: in Vercel, open the project's page, click **Instant Rollback** on the Production tile and pick the earlier deployment (or run `vercel rollback`; the free plan can only go back one step). After a rollback, new pushes do not go live until you click **Undo Rollback** (or run `vercel promote <deployment-url>`). Rolling back changes her code only, not what she has learned; use **Undo** on an upload for that. On GitHub, `git revert HEAD` then `git push` undoes your last push without erasing history.
+
+If `vercel --prod` says *Failed to connect <your repository> to project*, the deployment still worked. Vercel just cannot see your GitHub repository yet: in Vercel, open your account's **Settings, Authentication** (or the project's **Settings, Git**), connect GitHub, and allow it to read the `marshie` repository.
+
+Online, anyone can reach the site, so the Teacher panel **stays locked** (it says so when you try to log in) until both `ADMIN_PIN` and `SECRET_KEY` are set in the Vercel project's **Settings, Environment Variables**, or with `vercel env add ADMIN_PIN production` and `vercel env add SECRET_KEY production`. Deploy again after adding them.
 
 Things that are different online:
 
@@ -185,6 +192,10 @@ voices/               offline voice files, if installed
 Run `python marshie.py doctor` first. It lists what is missing.
 
 - **She does not speak.** Tap the page once (browsers need that), check the speaker and the *Sound on* button. Try the Teacher panel, Voice and screen, **Hear Marshie talk**. On a Pi with no sound from Chromium, run `python marshie.py voice`.
+- **"Listening is not working in this browser, but it is not your internet."** The word *network* in this error comes from the browser's own speech service, not from your Wi-Fi. That service is missing or blocked in Brave, Arc, Chromium, Opera, Vivaldi and Firefox, it can be blocked by a VPN, a firewall, a school network or a privacy or ad blocker, and Safari only has it when Dictation is on. Two fixes, in this order:
+  1. Open `http://localhost:8000` in **Google Chrome** (or Microsoft Edge), with any VPN off, and allow the microphone. Then open **Teachers, Voice and screen, Listening, Test the microphone**. It tells you which browser it found and what to change.
+  2. For listening that never depends on the browser or the internet, stop Marshie with Ctrl+C, then run `python3 marshie.py voice --only listen` (about 40 MB, once) and `python3 marshie.py start`. The Listening box then says she is using the offline listener.
+- **"Method Not Allowed" when logging in online (Vercel).** The online copy was handed the wrong web address for the request. Use the latest files (`vercel.json` and `backend/app/vercel_path.py` carry the fix), run `vercel --prod` again, then check `https://YOUR-ADDRESS/api/health`. It should show Marshie's name. A wrong PIN should then say "That PIN is not right."
 - **The microphone does nothing.** It needs `http://localhost:8000` or HTTPS, not a plain network address. Allow the microphone when the browser asks. Firefox has no speech recognition and Safari's is unreliable, so use Chrome or Edge, or install the offline listening.
 - **"Port 8000 is busy".** She picks the next free port by herself. You can also use `--port 9000`.
 - **Packages will not install.** The first start needs the internet. A school network that blocks PyPI can use a phone hotspot for that one step.
@@ -195,7 +206,7 @@ Run `python marshie.py doctor` first. It lists what is missing.
 
 ## What has and has not been tested
 
-Run in a headless Chromium and a test server, and passing: the built-in and school knowledge, search, the learning loop, Excel templates and upload, data-table questions, adding pictures, a recording, a Word document and an Excel sheet from the Teacher panel and then asking for them in the chat (including the audio player and byte-range playback that Safari needs), the zip backup and restore, deleting files, the greeting and colour editor, the Paid AI tab (against a stand-in service, and a real service that correctly refused a made-up key), the quiz, the launcher's setup, start, doctor, autostart and test commands, and the screens at phone, tablet, laptop and Pi-screen sizes with no sideways scrolling, and the hands-free conversation (with a simulated microphone and simulated voices: it listens, answers aloud, never listens while she talks, ends on "goodbye" or "stop", on the Stop button or after silence, can be interrupted by a tap, handles a spoken quiz, and can start by itself). There are 26 automatic backend tests (`python marshie.py test`). Vercel's runtime was simulated locally.
+Run in a headless Chromium and a test server, and passing: the built-in and school knowledge, search, the learning loop, Excel templates and upload, data-table questions, adding pictures, a recording, a Word document and an Excel sheet from the Teacher panel and then asking for them in the chat (including the audio player and byte-range playback that Safari needs), the zip backup and restore, deleting files, the greeting and colour editor, the Paid AI tab (against a stand-in service, and a real service that correctly refused a made-up key), the quiz, the launcher's setup, start, doctor, autostart and test commands, and the screens at phone, tablet, laptop and Pi-screen sizes with no sideways scrolling, and the hands-free conversation (with a simulated microphone and simulated voices: it listens, answers aloud, never listens while she talks, ends on "goodbye" or "stop", on the Stop button or after silence, can be interrupted by a tap, handles a spoken quiz, and can start by itself). There are 30 automatic backend tests (`python marshie.py test`). Vercel's runtime was simulated locally.
 
 **Not yet tried on real hardware or services:** real speech recognition and real Apple or Microsoft voices (the tests used stand-ins, so please try a conversation on your Mac before the event), the offline voice downloads and speaking/listening (Piper and Vosk), uploading a recording and having Vosk write it out, the Raspberry Pi 5 itself, Windows and macOS, an actual Vercel deployment, and a paid AI key from Claude or OpenAI (the request format is written to their documentation, and the Test button will tell you at once if something is off). The code is written to be portable, and `python marshie.py doctor` and the voice self-test are there to show quickly if something on your machine differs. Please try the voice, the microphone and the AI test the day before the event.
 

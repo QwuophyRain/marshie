@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { applyVoiceStyle, resetSettings, settings } from '../../settings'
-import { caps, isFancyVoice, pickVoice, rankedVoices, speak, stopSpeaking } from '../../composables/useVoice'
+import { browserInfo, caps, isFancyVoice, listenAdvice, listenIssue, liveText, pickVoice, rankedVoices, speak, startListening, stopSpeaking } from '../../composables/useVoice'
 import { logout } from '../../composables/useTeacher'
 
 const voices = ref([])
@@ -17,6 +17,26 @@ function refreshVoices() {
   chosen.value = pickVoice()
 }
 const custom = () => { settings.voiceStyle = 'custom' }
+
+// ---- a button to try the microphone, with plain words about what went wrong
+const browser = browserInfo()
+const mic = ref({ state: '', heard: '', problem: '' })        // state: '' | 'listening' | 'done'
+let stopMic = null
+async function testMic() {
+  if (mic.value.state === 'listening') { stopMic?.(); return }
+  mic.value = { state: 'listening', heard: '', problem: '' }
+  listenIssue.code = ''
+  const l = startListening()
+  stopMic = l.stop
+  try {
+    const text = await l.promise
+    mic.value = { state: 'done', heard: text, problem: text ? '' : 'I did not hear any words. Press the button, then speak a little louder or closer to the microphone.' }
+  } catch (e) {
+    mic.value = { state: 'done', heard: '', problem: listenAdvice(listenIssue.code) || e.message }
+  }
+  stopMic = null
+}
+onBeforeUnmount(() => stopMic?.())
 onMounted(() => {
   refreshVoices()
   if (caps.synth) window.speechSynthesis.addEventListener('voiceschanged', refreshVoices)
@@ -149,6 +169,34 @@ async function toggleFullscreen() {
       <p v-else-if="caps.recognition && caps.secure" class="tp-note">Marshie is using the browser’s speech recognition. It works in Chrome and Edge and needs the internet.</p>
       <p v-else-if="!caps.secure" class="tp-note bad">The microphone only works on a secure address. Open Marshie at <code>http://localhost:8000</code> on this computer, or publish her online (which uses HTTPS).</p>
       <p v-else class="tp-note bad">This browser cannot listen. Children can still type, or you can use Chrome or Edge.</p>
+      <p v-if="!caps.stt_server && browser.note && mic.problem !== browser.note" class="tp-note bad">You are using {{ browser.name }}. {{ browser.note }}</p>
+
+      <div>
+        <button type="button" class="btn pink tp-fit" :class="{ rec: mic.state === 'listening' }" @click="testMic">
+          {{ mic.state === 'listening' ? 'Listening… press to stop' : 'Test the microphone' }}
+        </button>
+        <p v-if="mic.state === 'listening'" class="hint" aria-live="polite">Say something now.<template v-if="liveText"> I hear: “{{ liveText }}”</template></p>
+        <p v-else-if="mic.heard" class="tp-note good" role="status">It works. I heard: “{{ mic.heard }}”</p>
+        <p v-else-if="mic.problem" class="tp-note bad" role="alert">{{ mic.problem }}</p>
+      </div>
+
+      <details v-if="!caps.stt_server" class="tip" :open="!!(mic.problem || listenIssue.code)">
+        <summary>Make listening work without the internet (any browser)</summary>
+        <p class="hint">
+          If the test above fails, or you want listening that never depends on the internet, give Marshie her own ears. In the Terminal
+          (or Warp) on this computer:
+        </p>
+        <ol>
+          <li>Press <b>Ctrl+C</b> to stop Marshie.</li>
+          <li>Run <code>python3 marshie.py voice --only listen</code>. It downloads a small English listening model (about 40 MB) once.</li>
+          <li>Run <code>python3 marshie.py start</code> and open her again. This tab will then say she is using the offline listener.</li>
+        </ol>
+        <p class="hint">
+          Clear speech works best, and the words appear after the child stops speaking instead of while they speak.
+          The browser’s own service is a little more accurate when it works.
+        </p>
+      </details>
+
       <div v-if="!caps.stt_server">
         <label class="lbl" for="v-l">The way children speak</label>
         <select id="v-l" v-model="settings.lang" class="field">
@@ -200,5 +248,6 @@ async function toggleFullscreen() {
 .style input { width: 1.4rem; height: 1.4rem; margin-top: .2rem; accent-color: var(--pink-deep); flex: none; }
 .tip { border: 2px solid var(--line); border-radius: 14px; padding: .6rem .9rem; background: var(--paper); }
 .tip summary { cursor: pointer; font-weight: 700; }
-.tip ul { margin: .5rem 0 0 1.1rem; padding: 0; display: flex; flex-direction: column; gap: .5rem; }
+.tip ul, .tip ol { margin: .5rem 0 0 1.3rem; padding: 0; display: flex; flex-direction: column; gap: .5rem; }
+.rec { background: var(--berry); color: #fff; }
 </style>

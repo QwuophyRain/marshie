@@ -10,6 +10,7 @@ import json
 import mimetypes
 import re
 import time
+import uuid
 import zipfile
 from collections import defaultdict, deque
 from pathlib import Path
@@ -24,6 +25,7 @@ from . import config, docs, excel_io, llm, voice
 from . import media as media_mod
 from .brain import Brain
 from .store import StorageError, Store
+from .vercel_path import VercelPath
 
 # Windows can report .js as text/plain (it reads the registry), which makes browsers refuse
 # to run the Vue app. Pin the types so Marshie behaves the same on Windows, macOS and Linux.
@@ -33,6 +35,8 @@ for _ext, _mime in ((".js", "application/javascript"), (".mjs", "application/jav
 
 app = FastAPI(title="Marshie", docs_url="/api/docs", openapi_url="/api/openapi.json")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+if config.IS_VERCEL:                          # online, Vercel may hand this app the rewrite target instead of the real address
+    app.add_middleware(VercelPath)
 
 store = Store()
 brain = Brain(store)
@@ -69,8 +73,14 @@ def valid_token(token: str) -> bool:
         return False
 
 
+LOCKED = ("The Teacher panel is locked until this online copy has its own PIN and secret key. In your Vercel project open "
+          "Settings, Environment Variables, add ADMIN_PIN (your PIN) and SECRET_KEY (a long random text), then deploy again.")
+
+
 def admin(x_admin_token: str = Header(default=""), token: str = Query(default="")) -> None:
     """Header for normal calls; ?token= for file downloads opened by a plain link."""
+    if config.ADMIN_LOCKED:
+        raise HTTPException(403, LOCKED)
     if not valid_token(x_admin_token or token):
         raise HTTPException(401, "Teacher PIN needed")
 
@@ -261,6 +271,8 @@ _fails: dict[str, list[float]] = defaultdict(list)
 
 @app.post("/api/admin/login")
 def login(body: LoginIn, request: Request):
+    if config.ADMIN_LOCKED:
+        raise HTTPException(403, LOCKED)
     ip = (request.headers.get("x-forwarded-for", "").split(",")[0] or (request.client.host if request.client else "?")).strip()
     now = time.time()
     _fails[ip] = [t for t in _fails[ip] if t > now - 60]
@@ -284,7 +296,9 @@ def overview():
         "defaults": {"greeting": config.GREETING, "theme": config.THEME},
         "features": {"pdf": importlib.util.find_spec("pypdf") is not None,
                      "transcribe": voice.stt_available(), "media_mb": round(store.blobs.max_bytes / 1048576, 1)},
-        "uploads": list(reversed(s["uploads"]))[:10], "unknown": unknown,
+        "uploads": [{**{k: v for k, v in u.items() if k != "undo"}, "can_undo": bool(u.get("undo")) and not u.get("undone")}
+                    for u in reversed(s["uploads"])][:10],
+        "unknown": unknown,
         "datasets": [{"id": d["id"], "name": d["name"], "columns": d["columns"], "rows": len(d["rows"]),
                       "source": d.get("source", ""), "preview": d["rows"][:5]} for d in s["datasets"]],
         "default_pin": config.PIN_IS_DEFAULT, "on_vercel": config.IS_VERCEL,
@@ -439,16 +453,19 @@ async def upload(file: UploadFile = File(...), commit: bool = Form(False), categ
         "committed": False,
     }
     if commit:
+        batch = "b-" + uuid.uuid4().hex[:8]
         for e in parsed["entries"]:
+            e["upload"] = batch
             if category_override:
                 e["category"] = category_override
         added, dup = store.add_entries(parsed["entries"], via="excel", added_by="Excel upload")
         for ds in parsed["datasets"]:
-            store.add_dataset(ds["name"], ds["columns"], ds["rows"], file.filename or "upload")
+            store.add_dataset(ds["name"], ds["columns"], ds["rows"], file.filename or "upload", upload=batch)
         summary.update({"committed": True, "added": added, "duplicates": dup,
                         "datasets_added": len(parsed["datasets"])})
         store.log_upload(file.filename or "upload", {"added": added, "duplicates": dup, "errors": len(parsed["errors"]),
-                                                     "datasets": len(parsed["datasets"])})
+                                                     "datasets": len(parsed["datasets"])},
+                         undo={"batch": batch} if (added or parsed["datasets"]) else None)
     return summary
 
 
@@ -487,7 +504,8 @@ async def add_media(file: UploadFile = File(...), title: str = Form(""), say: st
     except Exception:
         store.delete_media(rec["id"])
         raise
-    store.log_upload(file.filename or title, {"added": added, "duplicates": 0, "errors": 0, "datasets": 0, "kind": kind})
+    store.log_upload(file.filename or title, {"added": added, "duplicates": 0, "errors": 0, "datasets": 0, "kind": kind},
+                     undo={"media": rec["id"]})
     return {"ok": True, "kind": kind, "title": title, "added": added, "media": store._media_view(rec)}
 
 
@@ -517,9 +535,17 @@ async def add_document(file: UploadFile | None = File(default=None), text: str =
     if commit:
         rec = store.add_document(title, filename, parts, category.strip()[:60], docs.lead)
         store.log_upload(filename or title, {"added": rec["passages"], "duplicates": 0, "errors": 0, "datasets": 0,
-                                             "kind": "document"})
+                                             "kind": "document"}, undo={"document": rec["id"]})
         summary.update({"committed": True, "added": rec["passages"]})
     return summary
+
+
+@app.post("/api/admin/uploads/{upload_id}/undo", dependencies=[Depends(admin)])
+def undo_upload(upload_id: str):
+    res = store.undo_upload(upload_id)
+    if res is None:
+        raise HTTPException(404, "There is nothing left to undo for that upload.")
+    return {"ok": True, **res}
 
 
 @app.get("/api/admin/library", dependencies=[Depends(admin)])

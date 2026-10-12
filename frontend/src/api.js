@@ -72,6 +72,7 @@ export const api = {
   addDocument: (form) => json('/api/admin/document', { method: 'POST', form, admin: true }),
   library: () => json('/api/admin/library', { admin: true }),
   deleteLibraryItem: (id) => json(`/api/admin/library/${id}`, { method: 'DELETE', admin: true }),
+  undoUpload: (id) => json(`/api/admin/uploads/${id}/undo`, { method: 'POST', admin: true }),
   setLogo: (file) => {
     const form = new FormData()
     form.append('file', file)

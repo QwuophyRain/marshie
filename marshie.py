@@ -445,7 +445,8 @@ def try_voice(voice: str) -> bool:
 
 def cmd_voice(args) -> None:
     prepare(frontend=False)
-    sync_packages(("requirements.txt", "requirements-voice.txt"))
+    # Listening alone needs only Vosk, so a problem installing the talking package can never block it.
+    sync_packages(("requirements.txt", "requirements-listen.txt" if args.only == "listen" else "requirements-voice.txt"))
     voices = ROOT / "voices"
     voices.mkdir(exist_ok=True)
     if args.only in ("both", "talk"):
