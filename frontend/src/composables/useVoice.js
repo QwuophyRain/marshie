@@ -1,7 +1,8 @@
 // Marshie's voice: she talks (server voice on the Pi, else the browser's) and listens (server mic, else the browser's).
 import { reactive, ref } from 'vue'
 import { api } from '../api'
-import { settings } from '../settings'
+import { settings, VOICE_STYLES } from '../settings'
+import { LANGUAGES, lang as currentLang, t } from '../i18n'
 
 export const caps = reactive({
   loaded: false,
@@ -84,25 +85,56 @@ function sentences(text) {
   return out
 }
 
-const FEMALE = /female|\+f\d|zira|samantha|karen|moira|tessa|fiona|victoria|jenny|aria|hazel|susan|ava|allison|ellen|serena|catherine|libby|sonia|natasha|google uk english female/i
+const FEMALE = new RegExp([
+  'female|\\+f\\d|zira|samantha|karen|moira|tessa|fiona|victoria|jenny|aria|hazel|susan|ava|allison|ellen|serena|catherine|libby|sonia|natasha',
+  'google uk english female',
+  'am[eé]lie|audrey|marie|virginie|denise|eloise|brigitte|c[eé]line|julie',              // French
+  'm[oó]nica|paulina|helena|elvira|luc[ií]a|sabina|laura|carmen|conchita|marisol|esperanza',  // Spanish
+  'anna|petra|katja|marlene|vicki|hedda|amala|seraphina|klara|vicki',                     // German
+].join('|'), 'i')
 
 // Voices that sound like a phone assistant. Apple's "Siri", "Premium" and "Enhanced" voices and Microsoft's "Natural"
 // voices are the most lifelike; the plain built-in ones come next. Novelty voices (Zarvox, Bells...) are never chosen.
 const QUALITY = [[/siri/i, 60], [/premium/i, 40], [/natural|neural|online/i, 36], [/enhanced/i, 30]]
 const PREFERRED = [[/\bava\b/i, 14], [/samantha/i, 13], [/\baria\b/i, 13], [/jenny/i, 12], [/allison/i, 11], [/\bzoe\b/i, 10],
-  [/nicky/i, 10], [/joelle/i, 9], [/susan/i, 8], [/google us english/i, 8], [/karen|moira|tessa|serena|fiona|catherine|libby|sonia|hazel/i, 6]]
+  [/nicky/i, 10], [/joelle/i, 9], [/susan/i, 8], [/google us english/i, 8], [/karen|moira|tessa|serena|fiona|catherine|libby|sonia|hazel/i, 6],
+  // her other three languages
+  [/am[eé]lie|denise|elvira|\banna\b|katja/i, 13], [/audrey|paulina|m[oó]nica|helena|seraphina|amala|marlene/i, 11],
+  [/google (fran[cç]ais|espa[nñ]ol|deutsch)/i, 8], [/virginie|eloise|luc[ií]a|sabina|petra|vicki|hedda/i, 7]]
+// The home accent of each language scores highest, so a French child hears France, not Canada, when both are installed.
+const HOME = [[/en[-_]US/i, 4], [/en[-_]GB/i, 3], [/fr[-_]FR/i, 4], [/es[-_]ES/i, 4], [/es[-_](MX|US)/i, 3], [/de[-_]DE/i, 4]]
+// Boy voices (used when a child picks the bow tie): the names of male voices on Mac, Windows, Android and in Chrome.
+const MALE = new RegExp([
+  '\\bmale\\b|\\+m\\d|daniel|\\balex\\b|aaron|arthur|oliver|\\bguy\\b|ryan|george|david|\\bmark\\b|james|brian|christopher|eric|roger|steffan|william|liam|nathan|gordon|rishi|evan',
+  'thomas|nicolas|henri|claude|paul|jorge|diego|juan|pablo|enrique|carlos|alvaro|markus|stefan|yannick|hans|conrad|killian|florian|jonas|stefan',
+].join('|'), 'i')
+const PREFERRED_MALE = [[/daniel/i, 14], [/\balex\b/i, 13], [/\bguy\b/i, 13], [/ryan/i, 12], [/aaron/i, 11], [/arthur/i, 10],
+  [/google uk english male/i, 8], [/thomas|oliver|george|david|brian|eric|roger|steffan|liam|nathan|william|james|\bmark\b/i, 6],
+  [/thomas|nicolas|jorge|diego|juan|markus|stefan|jonas|conrad|killian/i, 11], [/henri|pablo|enrique|carlos|florian|yannick|hans/i, 7]]
 const NOVELTY = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|jester|organ|superstar|trinoids|whisper|wobble|zarvox|fred|junior|kathy|ralph|princess/i
+
+export const isBoy = () => settings.voiceGender === 'male'
 
 export function voiceScore(v) {
   if (NOVELTY.test(v.name)) return -100
+  const boy = isBoy()
+  const female = FEMALE.test(v.name)
+  const male = MALE.test(v.name) && !female
   let s = 0
   for (const [re, n] of QUALITY) if (re.test(v.name)) { s = Math.max(s, n) }
-  for (const [re, n] of PREFERRED) if (re.test(v.name)) { s += n; break }
-  if (/en[-_]US/i.test(v.lang)) s += 4
-  else if (/en[-_]GB/i.test(v.lang)) s += 3
-  if (FEMALE.test(v.name)) s += 2
+  for (const [re, n] of (boy ? PREFERRED_MALE : PREFERRED)) if (re.test(v.name)) { s += n; break }
+  for (const [re, n] of HOME) if (re.test(v.lang)) { s += n; break }
+  if (boy) s += male ? 8 : female ? -12 : 0         // a boy gets a boy's voice when the computer has one
+  else s += female ? 2 : male ? -6 : 0
   if (v.localService) s += 1
   return s
+}
+
+/** How loud-high and how fast she speaks. The boy voice is lower, whatever the "young girl" sliders say. */
+function tuning() {
+  if (!isBoy()) return { pitch: settings.pitch, rate: settings.rate, serverPitch: settings.serverPitch, pace: settings.voiceStyle === 'girl' ? 1.25 : 1.0 }
+  const base = settings.voiceStyle === 'girl' ? VOICE_STYLES.natural : settings
+  return { pitch: Math.max(0.1, base.pitch * 0.92), rate: base.rate, serverPitch: Math.min(base.serverPitch, 1) * 0.86, pace: 1.0 }
 }
 
 export function englishVoices() {
@@ -116,14 +148,25 @@ export function rankedVoices() {
 export function isFancyVoice(v) {
   return QUALITY.some(([re]) => re.test(v.name))
 }
-export function pickVoice() {
+/** Voices installed on this computer for French, Spanish or German ('fr', 'es', 'de'). */
+export function voicesFor(code) {
+  if (!caps.synth || !code) return []
+  return window.speechSynthesis.getVoices().filter((v) => v.lang && v.lang.toLowerCase().replace('_', '-').startsWith(code))
+}
+
+/** The voice for a language. English honours the voice a teacher picked; the others pick the best female voice installed. */
+export function pickVoice(code = 'en') {
+  if (code !== 'en') {
+    const ranked = voicesFor(code).map((v) => ({ v, score: voiceScore(v) })).sort((a, b) => b.score - a.score)
+    return ranked.length && ranked[0].score > -50 ? ranked[0].v : null
+  }
   const voices = englishVoices()
   if (!voices.length) return null
   if (settings.voiceName) {
     const exact = voices.find((v) => v.name === settings.voiceName)
     if (exact) return exact
   }
-  if (settings.voiceStyle === 'girl') {
+  if (settings.voiceStyle === 'girl' && !isBoy()) {
     return voices.find((v) => FEMALE.test(v.name)) || voices.find((v) => /en-(GB|US|GH|NG)/i.test(v.lang)) || voices[0]
   }
   return rankedVoices()[0].v
@@ -132,7 +175,8 @@ export function pickVoice() {
 async function speakServer(text) {
   const chunks = sentences(text)
   const c = ctx()
-  const pace = settings.voiceStyle === 'girl' ? 1.25 : 1.0          // 1.0 = a normal speaking pace
+  const tune = tuning()
+  const pace = tune.pace                                             // 1.0 = a normal speaking pace
   const fetchChunk = (i) => api.tts(chunks[i], pace).then((buf) => c.decodeAudioData(buf.slice(0)))
   let cancelled = false
   stopCurrent = () => { cancelled = true }
@@ -144,7 +188,7 @@ async function speakServer(text) {
     await new Promise((resolve) => {
       const src = c.createBufferSource()
       src.buffer = audio
-      src.playbackRate.value = settings.serverPitch      // 1.0 = natural; higher = faster and higher, like a younger voice
+      src.playbackRate.value = tune.serverPitch          // 1.0 = natural; higher = faster and higher, like a younger voice
       const analyser = c.createAnalyser()
       analyser.fftSize = 512
       src.connect(analyser)
@@ -167,7 +211,7 @@ async function speakServer(text) {
   }
 }
 
-function speakBrowser(text) {
+function speakBrowser(text, code = 'en') {
   const synth = window.speechSynthesis
   const chunks = sentences(text)
   synth.cancel()
@@ -181,10 +225,11 @@ function speakBrowser(text) {
       if (finished) return
       if (i >= chunks.length) return end()
       const u = new SpeechSynthesisUtterance(chunks[i++])
-      const v = pickVoice()
-      if (v) { u.voice = v; u.lang = v.lang } else u.lang = 'en-GB'
-      u.pitch = Math.max(0.1, Math.min(2, settings.pitch))
-      u.rate = Math.max(0.5, Math.min(1.6, settings.rate))
+      const v = pickVoice(code)
+      if (v) { u.voice = v; u.lang = v.lang } else u.lang = code === 'en' ? 'en-GB' : LANGUAGES[code].speech
+      const tune = tuning()
+      u.pitch = Math.max(0.1, Math.min(2, tune.pitch))
+      u.rate = Math.max(0.5, Math.min(1.6, tune.rate))
       let started = false
       u.onstart = () => { started = true; clearTimeout(watchdog) }
       u.onend = next
@@ -198,26 +243,48 @@ function speakBrowser(text) {
   })
 }
 
-/** Say something. Resolves when she has finished (or after a reading-time pause when muted). */
-export async function speak(text) {
+/**
+ * Say something. Resolves when she has finished (or after a reading-time pause when muted).
+ * `lang` is the language of the text; `parts` is a list of { text, lang } when one answer mixes two languages
+ * (a French child asking about something she only knows in English hears each part in its own voice).
+ */
+export async function speak(text, opts = {}) {
   stopSpeaking()
   const mine = speakSeq
-  const readingTime = Math.min(7000, 700 + text.length * 42)
-  if (!settings.voiceOn || !text) return sleep(readingTime)
+  const parts = (Array.isArray(opts.parts) && opts.parts.length ? opts.parts : [{ text, lang: opts.lang }])
+    .map((p) => ({ text: p.text, lang: LANGUAGES[p.lang] ? p.lang : currentLang() }))
+    .filter((p) => p.text)
+  const all = parts.map((p) => p.text).join(' ')
+  const readingTime = Math.min(7000, 700 + all.length * 42)
+  if (!settings.voiceOn || !all) return sleep(readingTime)
   // Browsers with no voices installed (common on a fresh Raspberry Pi) "finish" instantly and silently.
   // Keep her face talking for a believable time anyway, unless she was interrupted.
   const started = Date.now()
-  const minimum = Math.min(6000, 500 + text.length * 30)
+  const minimum = Math.min(6000, 500 + all.length * 30)
   const settle = async () => {
     const left = minimum - (Date.now() - started)
     if (left > 0 && mine === speakSeq) await sleep(left)
   }
+  const sayOne = async (part) => {
+    // The offline (Piper) voice speaks English only; every other language uses the browser's voices.
+    if (caps.tts_server && part.lang === 'en') return speakServer(part.text)
+    if (caps.synth) return speakBrowser(part.text, part.lang)
+    throw new Error('no voice')
+  }
   try {
-    if (caps.tts_server) { await speakServer(text); return settle() }
-    if (caps.synth) { await speakBrowser(text); return settle() }
+    for (const part of parts) {
+      if (mine !== speakSeq) return
+      await sayOne(part)
+    }
+    return settle()
   } catch (e) {
-    console.warn('[marshie] voice failed, falling back', e)
-    try { if (caps.synth) { await speakBrowser(text); return settle() } } catch { /* ignore */ }
+    if (e.message !== 'no voice') console.warn('[marshie] voice failed, falling back', e)
+    try {
+      if (caps.synth) {
+        for (const part of parts) { if (mine !== speakSeq) return; await speakBrowser(part.text, part.lang) }
+        return settle()
+      }
+    } catch { /* ignore */ }
   }
   return sleep(readingTime)
 }
@@ -243,7 +310,7 @@ async function listenServer(setStop) {
   let stream
   try {
     stream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true } })
-  } catch { throw new Error('I need to use the microphone. Please allow it, then tap the microphone again.') }
+  } catch { throw new Error(t('err.micServer')) }
   const c = new (window.AudioContext || window.webkitAudioContext)()
   const source = c.createMediaStreamSource(stream)
   const proc = c.createScriptProcessor(4096, 1, 1)
@@ -333,9 +400,15 @@ export function listenAdvice(code) {
   return ''
 }
 
+/** The language the browser should listen for: the child's own for French, Spanish and German; Ghana English for English. */
+function recognitionLang() {
+  const code = currentLang()
+  return code === 'en' ? (settings.lang || 'en-US') : LANGUAGES[code].speech
+}
+
 function listenBrowser(setStop) {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition
-  if (!SR) return Promise.reject(new Error('This browser can’t listen yet. Please type your question.'))
+  if (!SR) return Promise.reject(new Error(t('mic.cantListen')))
   if (!window.isSecureContext) return Promise.reject(new Error(micHelp()))
   return new Promise((resolve, reject) => {
     let stopper = () => {}
@@ -355,29 +428,27 @@ function listenBrowser(setStop) {
       }
       rec.onerror = (e) => {
         liveText.value = ''
-        // Some voice-recognition services do not know every English variety (such as Ghana English): try plain US English once.
-        if ((e.error === 'language-not-supported' || e.error === 'network') && lang !== 'en-US') { retried = true; return run('en-US') }
+        // Some voice-recognition services do not know every variety (such as Ghana English): try the plain version once
+        // (US English, or just "fr", "es", "de").
+        const plainLang = currentLang() === 'en' ? 'en-US' : currentLang()
+        if ((e.error === 'language-not-supported' || e.error === 'network') && lang !== plainLang) { retried = true; return run(plainLang) }
         if (e.error === 'no-speech' || e.error === 'aborted') return resolve('')
         listenIssue.code = e.error
         listenIssue.at = Date.now()
-        if (e.error === 'not-allowed') return reject(new Error('I need to use the microphone. Please allow it in the browser, then try again. (Teachers: Teachers, Voice and screen, Listening has help.)'))
-        if (e.error === 'service-not-allowed' || e.error === 'network') {
-          return reject(new Error('Listening is not working in this browser, but it is not your internet. Please type your question. (Teachers: open Teachers, Voice and screen, Listening to fix it.)'))
-        }
-        reject(new Error('I couldn’t hear that. Please try again or type your question.'))
+        if (e.error === 'not-allowed') return reject(new Error(t('err.micBrowser')))
+        if (e.error === 'service-not-allowed' || e.error === 'network') return reject(new Error(t('err.listenBroken')))
+        reject(new Error(t('err.couldntHear')))
       }
       rec.onend = () => { if (!retried) { liveText.value = ''; resolve(text) } }
       stopper = () => { try { rec.stop() } catch { /* ignore */ } }
-      try { rec.start() } catch { reject(new Error('I couldn’t start listening. Please try again.')) }
+      try { rec.start() } catch { reject(new Error(t('err.couldntStart'))) }
     }
-    run(settings.lang || 'en-US')
+    run(recognitionLang())
   })
 }
 
 function micHelp() {
-  return caps.secure
-    ? 'This browser can’t use a microphone. Please type your question.'
-    : 'The microphone only works on a secure address. Open Marshie at http://localhost:8000 on this computer, or ask your teacher to enable HTTPS.'
+  return caps.secure ? t('err.noMic') : t('err.insecure')
 }
 
 /** Returns { promise, stop }. The promise resolves with what the child said ('' if nothing). */
@@ -385,8 +456,12 @@ export function startListening() {
   stopSpeaking()
   let stop = () => {}
   const setStop = (fn) => { stop = fn }
-  const promise = caps.stt_server ? listenServer(setStop) : listenBrowser(setStop)
+  // The offline listener (Vosk) understands English only. The other languages need the browser's own listening.
+  const promise = useServerEars() ? listenServer(setStop) : listenBrowser(setStop)
   return { promise, stop: () => stop() }
 }
 
-export const canListen = () => caps.stt_server || (caps.recognition && caps.secure)
+const browserEars = () => caps.recognition && caps.secure
+const useServerEars = () => caps.stt_server && currentLang() === 'en'
+/** Can she listen right now, in the language that is on screen? */
+export const canListen = () => browserEars() || (caps.stt_server && currentLang() === 'en')

@@ -3,7 +3,8 @@
 import { reactive } from 'vue'
 import { api } from '../api'
 import { settings } from '../settings'
-import { brand } from '../brand'
+import { brand, greetingFor, loadGreeting } from '../brand'
+import { BYE_WORDS, LANGUAGES, STOP_WORDS, lang as currentLang, plain, t } from '../i18n'
 import { canListen, caps, chime, speak, startListening, stopSpeaking, unlockAudio } from './useVoice'
 
 // Feelings she can show while she talks (her mouth moves in all of them).
@@ -58,11 +59,12 @@ export function touch() {
   }
 }
 
-/** Marshie talks: face talks while the voice plays, then she relaxes. */
-async function say(text, { mood = 'talking', spoken, after = 'idle' } = {}) {
+/** Marshie talks: face talks while the voice plays, then she relaxes. `lang` is the language of the words;
+ *  `parts` ([{ text, lang }]) is for an answer that mixes two languages. */
+async function say(text, { mood = 'talking', spoken, after = 'idle', lang, parts } = {}) {
   // celebrate / sad keep their face the whole time she speaks; plain answers use the talking face
   const token = setMood(mood)
-  await speak(spoken || text)
+  await speak(spoken || text, { lang: lang || currentLang(), parts: spoken ? undefined : parts })
   if (token === moodToken) {
     setMood(after)
     touch()                  // she has finished: start counting down to sleep and to "start fresh" from now
@@ -82,11 +84,42 @@ export function resetConversation() {
   greet(false)
 }
 
-/** The school's introduction. It is shown in the chat, and spoken (with names spelled the way they sound) when she wakes. */
+/** The school's introduction in the child's language. It is shown on screen, and spoken (with names spelled the way
+ *  they sound) when she wakes. */
 function greet(speakIt) {
-  push('bot', brand.greeting, { kind: 'greeting' })
-  if (speakIt) return say(brand.greeting, { mood: 'hello', spoken: brand.greetingSpoken || undefined })
+  const g = greetingFor(currentLang())
+  push('bot', g.text, { kind: 'greeting', lang: currentLang() })
+  if (speakIt) return say(g.text, { mood: 'hello', spoken: g.spoken || undefined })
   return Promise.resolve()
+}
+
+/** A girl voice (a bow on her head) or a boy voice (a bow tie on his neck). She says hello in the new voice. */
+export function setGender(gender) {
+  if (!['female', 'male'].includes(gender) || gender === settings.voiceGender) return
+  settings.voiceGender = gender
+  settings.voiceName = ''                          // go back to the best voice for this gender
+  if (state.started && !state.busy && !state.listening && !state.conversation) say(t('cap.hello'), { mood: 'hello' })
+}
+
+/** A child picks French, Spanish, German or English. If she is awake, Marshie starts again and says hello in it. */
+export async function setLanguage(code) {
+  if (!LANGUAGES[code] || code === settings.language) return
+  const wasChatting = state.conversation
+  settings.language = code
+  try { document.documentElement.lang = code } catch { /* no document */ }
+  await loadGreeting(code)
+  if (!state.started) return
+  endConversation('')
+  stopSpeaking()
+  stopListeningNow()
+  state.messages = []
+  state.quiz = null
+  state.teach = null
+  state.notice = ''
+  state.busy = false
+  setMood('idle')
+  await greet(true)
+  if (wasChatting && state.started && !state.conversation && canListen()) startConversation()
 }
 
 let pokes = 0
@@ -154,7 +187,7 @@ export async function ask(text) {
   }
   const msg = push('bot', reply.answer, {
     question, entryId: reply.entry_id, source: reply.source, canTeach: reply.can_teach,
-    media: reply.media || [], origin: reply.origin || '',
+    media: reply.media || [], origin: reply.origin || '', lang: reply.lang || currentLang(), parts: reply.parts || null,
     alternatives: reply.alternatives || [], feedback: null,
     rateable: ['knowledge', 'llm', 'math', 'dataset'].includes(reply.source),
   })
@@ -162,7 +195,10 @@ export async function ask(text) {
     setMood('unsure')
     await sleep(1000)
   }
-  await say(reply.answer, { mood: SPEAKING_MOODS.includes(reply.mood) ? reply.mood : 'talking', spoken: reply.spoken })
+  await say(reply.answer, {
+    mood: SPEAKING_MOODS.includes(reply.mood) ? reply.mood : 'talking', spoken: reply.spoken,
+    lang: reply.lang, parts: reply.parts,
+  })
   return msg
 }
 
@@ -175,7 +211,7 @@ function stopListeningNow() {
 
 export async function toggleListening() {
   touch()
-  if (state.conversation) return endConversation('Okay, I’ll stop listening.')
+  if (state.conversation) return endConversation(t('convo.stopShort'))
   if (state.listening) {
     stopListeningNow()
     return
@@ -201,9 +237,9 @@ export async function toggleListening() {
   state.listening = false
   listener = null
   if (!heard) {
-    state.notice = 'I didn’t hear anything. Tap the microphone and try again.'
+    state.notice = t('listen.nothing')
     setMood('unsure')
-    await say('I didn’t hear anything. Tap the microphone and try again, or type your question.', { mood: 'unsure', after: 'idle' })
+    await say(t('listen.nothingSpoken'), { mood: 'unsure', after: 'idle' })
     return
   }
   return send(heard)
@@ -216,17 +252,12 @@ export function send(text) {
 }
 
 // ------------------------------------------------------------------------------------------------ talking back and forth
-// Hands-free conversation: listen, answer out loud, listen again. It stops when someone says "stop" or "goodbye",
-// taps the button, or when nobody has spoken for a while. She never listens while she is talking, so she cannot hear herself.
-const STOP_WORDS = /^(stop|stop listening|stop talking|be quiet|quiet|enough|cancel|pause|end|quit|exit)$/
-const BYE_WORDS = /^(bye|bye bye|goodbye|good bye|see you|see you later|see you soon|that is all|that is it|i am done|we are done|good night|thats all|i have to go)$/
+// Hands-free conversation: listen, answer out loud, listen again. It stops when someone says "stop" or "goodbye"
+// (in the language on screen), taps the button, or when nobody has spoken for a while. She never listens while she is
+// talking, so she cannot hear herself.
 const MAX_QUIET_TURNS = 4
 
 let convoRun = 0
-
-function plain(text) {
-  return text.toLowerCase().replace(/['’]/g, '').replace(/[^a-z ]+/g, ' ').replace(/\s+/g, ' ').trim()
-}
 
 export function endConversation(line = '') {
   if (!state.conversation) return
@@ -244,13 +275,13 @@ export function endConversation(line = '') {
 
 export function toggleConversation() {
   touch()
-  return state.conversation ? endConversation('Okay, I’ll stop listening. Tap Talk with me whenever you want to chat again.') : startConversation()
+  return state.conversation ? endConversation(t('convo.stopLong')) : startConversation()
 }
 
 export async function startConversation() {
   if (state.conversation) return
   if (!canListen()) {
-    state.notice = 'This browser can’t listen yet, so please type your question.'
+    state.notice = t('mic.cantListen')
     return
   }
   unlockAudio()
@@ -302,11 +333,11 @@ async function converse(run) {
       quiet += 1
       setMood('idle')
       if (quiet >= MAX_QUIET_TURNS) {
-        await endConversation('I’ll take a little rest now. Tap Talk with me when you want to chat again.')
+        await endConversation(t('convo.rest'))
         return
       }
       if (quiet === 2) {
-        const line = 'Are you still there? Just talk to me, or tap Stop.'
+        const line = t('convo.stillThere')
         push('bot', line, { kind: 'info' })
         await say(line, { mood: 'talking' })
       }
@@ -316,15 +347,15 @@ async function converse(run) {
     touch()
 
     const said = plain(heard)
-    if (BYE_WORDS.test(said)) {
+    if (BYE_WORDS[currentLang()].test(said)) {
       push('user', heard)
-      await endConversation('Goodbye! It was lovely talking with you. Come and chat again soon.')
+      await endConversation(t('convo.bye'))
       return
     }
-    if (STOP_WORDS.test(said)) {
+    if (STOP_WORDS[currentLang()].test(said)) {
       if (state.quiz) { push('user', heard); await stopQuiz(); continue }
       push('user', heard)
-      await endConversation('Okay, I’ll stop listening. Tap Talk with me whenever you want to chat again.')
+      await endConversation(t('convo.stopLong'))
       return
     }
     await send(heard)                                  // resolves when she has finished speaking her answer
@@ -387,7 +418,7 @@ function startQuiz(first) {
 async function presentQuestion(q, isFirst = false) {
   state.quiz.current = q
   state.quiz.waiting = false
-  const text = isFirst ? `Let's play! ${q.question}` : q.question
+  const text = isFirst ? t('quiz.lets', { q: q.question }) : q.question
   push('bot', text, { kind: 'quiz' })
   await say(q.question)
 }
@@ -429,14 +460,14 @@ export async function answerQuiz(text) {
     quiz.score += 1
     quiz.streak += 1
     if (quiz.streak % 3 === 0 && quiz.level < 3) quiz.level += 1
-    line = ['Yes! That’s right!', 'Brilliant! You got it!', 'Hooray, correct!'][quiz.total % 3]
+    line = t('quiz.yes')[quiz.total % 3]
   } else {
     quiz.streak = 0
     let reveal = result.answer && result.answer !== 'Not quite' ? result.answer : ''
     if (!reveal && quiz.current.kind === 'math') {
       try { reveal = (await api.ask(quiz.current.question)).answer } catch { /* skip */ }
     }
-    line = `Not quite. ${reveal ? 'The answer is: ' + reveal : ''}`.trim()
+    line = `${t('quiz.notQuite')} ${reveal ? t('quiz.answerIs', { a: reveal }) : ''}`.trim()
   }
   push('bot', line, { kind: 'quiz-result', correct: result.correct })
   await say(line, { mood: result.correct ? 'celebrate' : 'sad' })
@@ -453,8 +484,8 @@ export async function stopQuiz() {
   stopSpeaking()
   const good = quiz.total > 0 && quiz.score / quiz.total >= 0.5
   const line = quiz.total
-    ? `Quiz finished! You got ${quiz.score} out of ${quiz.total}. ${good ? 'Well done!' : 'Good try! Let’s practise again soon.'}`
-    : 'Okay, we can play another time!'
+    ? `${t('quiz.end', { score: quiz.score, total: quiz.total })} ${good ? t('quiz.well') : t('quiz.tryAgain')}`
+    : t('quiz.later')
   push('bot', line, { kind: 'quiz-end' })
   await say(line, { mood: good ? 'celebrate' : 'talking' })
 }

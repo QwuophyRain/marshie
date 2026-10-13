@@ -8,6 +8,8 @@ const answer = ref('')
 const category = ref('')
 const keywords = ref('')
 const short = ref('')
+const lang = ref('en')
+const LANGS = [['en', 'English'], ['fr', 'French (Français)'], ['es', 'Spanish (Español)'], ['de', 'German (Deutsch)']]
 const saving = ref(false)
 const problem = ref('')
 const answerBox = ref(null)
@@ -35,7 +37,7 @@ async function save() {
   saving.value = true
   const res = await guard(() => api.addEntry({
     question: question.value, answer: answer.value, category: category.value.trim() || 'General',
-    keywords: keywords.value, short: short.value,
+    keywords: keywords.value, short: short.value, lang: lang.value,
   }))
   saving.value = false
   if (!res) return
@@ -58,6 +60,13 @@ async function save() {
       <div>
         <label class="lbl" for="t-a">Answer</label>
         <textarea id="t-a" ref="answerBox" v-model="answer" class="field" rows="3" maxlength="1000"></textarea>
+      </div>
+      <div>
+        <label class="lbl" for="t-lang">Language of the question and answer</label>
+        <select id="t-lang" v-model="lang" class="field">
+          <option v-for="[code, label] in LANGS" :key="code" :value="code">{{ label }}</option>
+        </select>
+        <p class="hint">Children who pick French, Spanish or German on the screen get the answers written in that language. Write the question and the answer in the same language.</p>
       </div>
       <div class="tp-row">
         <div>

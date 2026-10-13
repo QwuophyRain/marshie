@@ -1,5 +1,7 @@
 <script setup>
 import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { brand } from '../brand'
+import { t } from '../i18n'
 import { state, closeTeach, submitTeach, touch } from '../composables/useMarshie'
 import { canListen, startListening } from '../composables/useVoice'
 
@@ -20,8 +22,8 @@ onBeforeUnmount(() => listener?.stop())
 
 async function save() {
   problem.value = ''
-  if (question.value.trim().length < 3) { problem.value = 'Please write the question first.'; return }
-  if (answer.value.trim().length < 2) { problem.value = 'Please write the answer so I can learn it.'; return }
+  if (question.value.trim().length < 3) { problem.value = t('teach.needQ'); return }
+  if (answer.value.trim().length < 2) { problem.value = t('teach.needA'); return }
   saving.value = true
   const res = await submitTeach({ question: question.value, answer: answer.value, taught_by: name.value.trim() })
   saving.value = false
@@ -37,7 +39,7 @@ async function dictate() {
   try {
     const heard = await listener.promise
     if (heard) answer.value = (answer.value ? answer.value.trim() + ' ' : '') + heard
-    else problem.value = 'I didn’t hear anything. Tap “Say it” and try again.'
+    else problem.value = t('teach.noHear')
   } catch (e) {
     problem.value = e.message
   } finally {
@@ -50,32 +52,32 @@ async function dictate() {
 <template>
   <div class="backdrop" @keydown.esc="closeTeach" @pointerdown.self="closeTeach">
     <form class="dialog" role="dialog" aria-modal="true" aria-labelledby="teach-title" @submit.prevent="save" @input="touch">
-      <h2 id="teach-title">Teach Marshie</h2>
-      <p class="lead">I want to learn! Tell me the right answer and I will remember it.</p>
+      <h2 id="teach-title">{{ t('teach.title', { name: brand.name }) }}</h2>
+      <p class="lead">{{ t('teach.lead') }}</p>
 
       <div class="group">
-        <label class="lbl" for="teach-q">The question</label>
+        <label class="lbl" for="teach-q">{{ t('teach.q') }}</label>
         <input id="teach-q" ref="questionBox" v-model="question" class="field" type="text" maxlength="300" autocomplete="off" />
       </div>
 
       <div class="group">
-        <label class="lbl" for="teach-a">The right answer</label>
-        <textarea id="teach-a" ref="answerBox" v-model="answer" class="field" rows="3" maxlength="1000" placeholder="Write a short, true answer"></textarea>
+        <label class="lbl" for="teach-a">{{ t('teach.a') }}</label>
+        <textarea id="teach-a" ref="answerBox" v-model="answer" class="field" rows="3" maxlength="1000" :placeholder="t('teach.aPlaceholder')"></textarea>
         <button v-if="canListen()" type="button" class="btn small white say" :class="{ live: dictating }" @click="dictate">
-          {{ dictating ? 'Stop' : 'Say it' }}
+          {{ dictating ? t('mic.stopShort') : t('teach.sayIt') }}
         </button>
       </div>
 
       <div class="group">
-        <label class="lbl" for="teach-n">Your first name (optional)</label>
+        <label class="lbl" for="teach-n">{{ t('teach.name') }}</label>
         <input id="teach-n" v-model="name" class="field" type="text" maxlength="40" autocomplete="off" />
       </div>
 
       <p v-if="problem" class="problem" role="alert">{{ problem }}</p>
 
       <div class="buttons">
-        <button type="button" class="btn white" @click="closeTeach">Not now</button>
-        <button type="submit" class="btn green" :disabled="saving">{{ saving ? 'Learning…' : 'Teach Marshie' }}</button>
+        <button type="button" class="btn white" @click="closeTeach">{{ t('teach.notNow') }}</button>
+        <button type="submit" class="btn green" :disabled="saving">{{ saving ? t('teach.saving') : t('teach.save', { name: brand.name }) }}</button>
       </div>
     </form>
   </div>
@@ -99,6 +101,13 @@ async function dictate() {
 }
 @media (max-width: 900px), (orientation: portrait) {
   .backdrop { place-items: end center; background: linear-gradient(180deg, transparent 20%, rgba(2, 35, 45, .55) 45%); }
+}
+@media (max-width: 560px) {
+  .backdrop { padding: .5rem; }
+  .dialog { padding: 1rem 1.1rem 1.1rem; gap: .65rem; border-radius: 26px; }
+  .dialog h2 { font-size: 1.5rem; }
+  .lead { font-size: 1rem; }
+  textarea.field { min-height: 4.2rem; }
 }
 .lead { font-size: 1.1rem; }
 .group { position: relative; }

@@ -4,6 +4,7 @@ import { api } from '../../api'
 import { brand, bundledLogo, loadBrand, previewTheme, setTheme } from '../../brand'
 import { guard, loadOverview, overview, say } from '../../composables/useTeacher'
 import { speak } from '../../composables/useVoice'
+import { settings } from '../../settings'
 import { SCHOOL_COLOURS, applyTheme, isHex, paletteFromImage } from '../../theme'
 import MarshmallowFace from '../MarshmallowFace.vue'
 
@@ -21,7 +22,7 @@ async function saveGreeting(hear = false) {
   if (!res) return
   await Promise.all([loadBrand(), loadOverview()])
   say('Saved. This is what Marshie says when she wakes up.')
-  if (hear) speak(brand.greetingSpoken || brand.greeting)
+  if (hear) speak(brand.greetingSpoken || brand.greeting, { lang: 'en' })
 }
 async function standardGreeting() {
   greeting.value = defaultGreeting.value
@@ -108,6 +109,7 @@ const FACES = [
     <div class="tp-block">
       <h4>What Marshie says when she wakes up</h4>
       <p class="hint">Write <code>{name}</code> where her name goes and <code>{school}</code> where the school’s name goes.</p>
+      <p class="hint">This greeting is for English. When a child picks French, Spanish or German, Marshie uses her own ready-made greeting in that language.</p>
       <label class="lbl" for="g-text">Greeting</label>
       <textarea id="g-text" v-model="greeting" class="field" rows="4" maxlength="700"></textarea>
       <p class="preview" aria-live="polite"><b>Preview:</b> {{ filled }}</p>
@@ -158,7 +160,7 @@ const FACES = [
       <p class="hint">She shows how she feels. Tap her in the chat and she giggles, waves, gasps or blushes.</p>
       <ul class="faces tp-list">
         <li v-for="[id, label] in FACES" :key="id" class="face">
-          <div class="art"><MarshmallowFace :mood="id" :antics="false" /></div>
+          <div class="art"><MarshmallowFace :mood="id" :antics="false" :gender="settings.voiceGender" /></div>
           <span>{{ label }}</span>
         </li>
       </ul>

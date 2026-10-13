@@ -7,6 +7,8 @@ const props = defineProps({
   mouthLevel: { type: Number, default: null },
   // little idle surprises: a wave, a wink, a hop, a look around. Off in the faces gallery.
   antics: { type: Boolean, default: true },
+  // 'female' wears a bow on her head; 'male' wears a bow tie at his neck. It follows the voice a child picks.
+  gender: { type: String, default: 'female' },
 })
 
 // What each feeling looks like. `speak` moods also move their mouth while she talks.
@@ -178,12 +180,19 @@ const stars = [
             <ellipse cx="348" cy="262" rx="34" ry="17" style="fill: #ffffff; stroke: var(--mm-line)" stroke-width="4" />
           </g>
 
-          <!-- bow in the school's highlight colour, with a yellow button -->
-          <g class="bow">
+          <!-- girl voice: a bow on her head, in the school's highlight colour, with a yellow button -->
+          <g v-if="gender !== 'male'" class="bow">
             <path d="M258 58 C232 30 206 42 214 68 C220 86 246 72 258 62 Z" style="fill: var(--bow); stroke: var(--bow-dark)" stroke-width="3" stroke-linejoin="round" />
             <path d="M268 58 C294 30 322 42 312 68 C306 86 280 72 268 62 Z" style="fill: var(--bow); stroke: var(--bow-dark)" stroke-width="3" stroke-linejoin="round" />
             <ellipse cx="263" cy="60" rx="13" ry="12" style="fill: var(--bow); stroke: var(--bow-dark)" stroke-width="3" />
             <circle cx="263" cy="60" r="5.5" style="fill: var(--c2); stroke: var(--bow-dark)" stroke-width="1.5" />
+          </g>
+          <!-- boy voice: a bow tie under his chin, in the school's main colour, with a yellow knot -->
+          <g v-else class="bowtie">
+            <path d="M191 360 C176 348 156 341 139 337 C133 355 133 367 139 385 C156 381 176 373 191 360 Z" style="fill: var(--c1); stroke: var(--ink)" stroke-width="3.5" stroke-linejoin="round" />
+            <path d="M209 360 C224 348 244 341 261 337 C267 355 267 367 261 385 C244 381 224 373 209 360 Z" style="fill: var(--c1); stroke: var(--ink)" stroke-width="3.5" stroke-linejoin="round" />
+            <path d="M150 347 Q158 361 150 375 M250 347 Q242 361 250 375" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.45" />
+            <rect x="187" y="347" width="26" height="26" rx="8" style="fill: var(--c2); stroke: var(--ink)" stroke-width="3.5" />
           </g>
 
           <!-- face -->

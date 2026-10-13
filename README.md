@@ -1,6 +1,6 @@
 # Marshie
 
-Marshie is a marshmallow with a young girl's voice, made for the **Ecole Ronsard STEAM Program 2026** (Science, Technology, English, Agriculture & Arts, and Mathematics). Children talk or type to her. She answers from what she knows (maths, English, literature, science, technology, Ghana and world history, geography, arts, STEAM, and facts about Ecole Ronsard itself), shows how she feels with her face, and learns whatever the students and teachers teach her: Excel sheets, pictures, recordings, videos, PDF and Word files.
+Marshie is a marshmallow who talks and listens in **English, French, Spanish and German**, with a girl's or a boy's voice (her choice of bow on the head or bow tie on the neck goes with it). She was made for the **Ecole Ronsard STEAM Program 2026** (Science, Technology, English, Agriculture & Arts, and Mathematics). Children talk or type to her. She fills the screen, and a small **Menu** box holds everything else. She answers from what she knows (maths, English, literature, science, technology, Ghana and world history, geography, arts, STEAM, and facts about Ecole Ronsard itself), shows how she feels with her face, and learns whatever the students and teachers teach her: Excel sheets, pictures, recordings, videos, PDF and Word files.
 
 She wakes up with this greeting, written on the screen and spoken aloud:
 
@@ -52,6 +52,7 @@ The screen is already built in the zip. If you got the project from Git it is no
 ```
 python marshie.py start        start her and open the browser
 python marshie.py kiosk        start her and open her full screen (Chrome, Edge or Chromium)
+python marshie.py key          save your paid AI key in the private .env file (asks while you paste; --status, --remove)
 python marshie.py voice        install the offline voice and listening (--piper-voice en_US-lessac-medium for a more lifelike one)
 python marshie.py autostart    start her by herself when the computer turns on (add --remove to undo)
 python marshie.py doctor       check what works and what is missing
@@ -69,6 +70,17 @@ Add `--share` to `start` or `kiosk` so phones and tablets on the school network 
 
 ## Talking with her
 
+**The screen.** Marshie fills the whole screen. What she says appears under her in large writing like subtitles, with the question above it. The bar at the bottom has **Talk with me**, a box to type in, and **Send**. The small **Menu** button (top right) opens a little box with: the language, girl or boy, the topics to tap and ask about, **How to use me**, **Full screen**, **What we said** (the whole conversation) and **Start fresh**. Teachers open the Teacher panel from the same box (**Teachers**).
+
+**Four languages.** In the Menu box, pick **English, Français, Español or Deutsch**. Everything changes at once: the words on the screen, the tap-to-ask questions, what she hears and what she says. She keeps her own knowledge for each language, so a French question is answered from French facts. About 77 facts and answers are built in for each of French, Spanish and German (the school, maths, science, Ghana, arts, technology and fun), sums work in each language ("Combien font 12 fois 7 ?"), the quiz asks in that language and unkind words are caught in all four. Good to know:
+
+- If she knows an answer only in English, she says so kindly, gives it in English and, when the paid AI is on, translates it. Translations count against the AI's daily limit.
+- Teach her in a language by choosing it first (children) or by picking **Language** in the Teacher panel, **Teach by typing**. Excel sheets have a **Language** column (English, French, Spanish, German; empty means English).
+- Her offline voice and ears (`python marshie.py voice`: Piper and Vosk) are English only. In French, Spanish and German she uses the voices that come with the browser and computer, and listening needs Chrome or Edge with the internet. If a computer has no French, Spanish or German voice, she still writes the answer on the screen; install one in the computer's voice settings.
+- The greeting you write in the Teacher panel is the English one. The other three languages have a built-in greeting.
+
+**Girl or boy.** In the Menu box (or Teacher panel, **Voice and screen**) choose **Girl** or **Boy**. A girl Marshie wears a **bow on her head** and speaks with a girl's voice. A boy Marshie wears a **bow tie on his neck**, speaks with a lower voice and the screen's wording changes where it matters (for example "désolé" instead of "désolée" in French). The choice is remembered on that computer.
+
 **Conversation mode.** Press **Talk with me** under the chat and just talk. She listens, answers out loud, then listens again, like a conversation with a phone assistant. The words she hears appear on the screen while the child is still speaking, and a soft sound tells them when it is their turn.
 
 - To end it: say "stop" or "goodbye", press **Stop talking**, or stay quiet. After a few quiet turns she says she will rest.
@@ -77,7 +89,7 @@ Add `--share` to `start` or `kiosk` so phones and tablets on the school network 
 - In a quiz, children say their answers. Saying "stop" ends the quiz first, and a second "stop" ends the conversation.
 - On a school screen, tick **Start chatting by herself when she wakes up** (Teacher panel, Voice and screen) so children do not even need to press the button.
 
-**Her voice, like Siri.** She starts in the **Natural** style: a normal pitch and pace, using the most lifelike voice she can find on the computer (Apple's Siri, Premium and Enhanced voices, then Microsoft's Natural voices, then the plain built-in ones). The **Young girl** style, higher and slower, is one click away in the Teacher panel, **Voice and screen**, which also shows which voice she is using and lists the voices best first.
+**Her voice, like Siri.** (For a boy Marshie the voice is lower and the **Young girl** style is not used.) She starts in the **Natural** style: a normal pitch and pace, using the most lifelike voice she can find on the computer (Apple's Siri, Premium and Enhanced voices, then Microsoft's Natural voices, then the plain built-in ones). The **Young girl** style, higher and slower, is one click away in the Teacher panel, **Voice and screen**, which also shows which voice she is using and lists the voices best first.
 
 To get a more lifelike voice:
 
@@ -108,11 +120,11 @@ Click **Teachers** at the top right and type the PIN (`ADMIN_PIN` in `.env`, sta
 - **Excel sheets** makes the template for students (pick the sheet type, class, subject and columns). It has instructions, an example row and subject drop-downs.
   - *Questions and answers* and *Facts* sheets become things she can answer.
   - *Data* sheets become tables. Children can ask "What is the average Week 2 height in the plant data?" or "Who has the highest Week 1?".
-- **Teach by typing** adds one question and answer. Add a short answer to make it usable in quiz mode.
+- **Teach by typing** adds one question and answer, in the language you pick. Add a short answer to make it usable in quiz mode.
 - **What Marshie knows** lets you search, delete things that were taught, delete pictures, recordings, documents and data tables, and keep a copy safe: a **.zip with the pictures and sound** (best), the words only (.json), or an Excel file.
-- **Look and words** changes the greeting, the four school colours (with a live preview), the logo, and has a **Pick the colours from this logo** button. It also shows all of Marshie's faces.
+- **Look and words** changes the (English) greeting, the four school colours (with a live preview), the logo, and has a **Pick the colours from this logo** button. It also shows all of Marshie's faces.
 - **Paid AI** adds an AI service (see below).
-- **Voice and screen** has the voice and pitch controls, bigger writing, sleep and fresh-chat timers.
+- **Voice and screen** has girl or boy (bow or bow tie), the voice and pitch controls, bigger writing, sleep and fresh-chat timers.
 
 ### How she learns
 
@@ -137,6 +149,7 @@ Good to know:
 - **You pay the service**, a very small amount for each answer. The daily limit protects you from a surprise bill. On Vercel each running copy counts by itself, so the limit is approximate there.
 - **The key is private.** It is stored on the computer that runs Marshie (`data/state.json`; on Vercel, in your Upstash store). It is never sent back to any screen, never shown again (only its last four letters), and never put in a backup. Anyone who copies the `data` folder copies the key, so keep that folder private. On Vercel you can set `LLM_PROVIDER` and `LLM_API_KEY` as environment variables instead.
 - **Privacy.** When she asks the AI, the child's question and a few lines of the school's facts go to that service. Ask children not to type their full names, addresses or phone numbers, and tell parents.
+- **Putting your key on this computer.** Run `python marshie.py key`, paste the key when asked (nothing is shown while you paste) and press Enter. It is saved in the private `.env` file, which is never committed to Git, and only its last four letters are ever printed. It picks the service for you: keys starting `sk-ant` are Claude, other `sk-` keys are OpenAI. `python marshie.py key --status` says whether one is saved and `--remove` takes it out. **Never write a key into any other file** (README, code, a message you commit): a key that reaches GitHub can be found and used by strangers within minutes. If a key was ever pasted somewhere public or in a chat, make a new one on the service's website and delete the old one.
 - Computers that are set up by hand can still use `.env`: `LLM_PROVIDER` (`anthropic` or `openai`), `LLM_API_KEY`, `LLM_MODEL`, `LLM_BASE_URL`. What is saved in the Teacher panel wins over `.env`.
 - For an offline AI on a Pi-sized machine, choose **Ollama** (it runs on the same computer, so no key is needed).
 
@@ -206,7 +219,7 @@ Run `python marshie.py doctor` first. It lists what is missing.
 
 ## What has and has not been tested
 
-Run in a headless Chromium and a test server, and passing: the built-in and school knowledge, search, the learning loop, Excel templates and upload, data-table questions, adding pictures, a recording, a Word document and an Excel sheet from the Teacher panel and then asking for them in the chat (including the audio player and byte-range playback that Safari needs), the zip backup and restore, deleting files, the greeting and colour editor, the Paid AI tab (against a stand-in service, and a real service that correctly refused a made-up key), the quiz, the launcher's setup, start, doctor, autostart and test commands, and the screens at phone, tablet, laptop and Pi-screen sizes with no sideways scrolling, and the hands-free conversation (with a simulated microphone and simulated voices: it listens, answers aloud, never listens while she talks, ends on "goodbye" or "stop", on the Stop button or after silence, can be interrupted by a tap, handles a spoken quiz, and can start by itself). There are 30 automatic backend tests (`python marshie.py test`). Vercel's runtime was simulated locally.
+Run in a headless Chromium and a test server, and passing: the built-in and school knowledge, search, the learning loop, Excel templates and upload, data-table questions, adding pictures, a recording, a Word document and an Excel sheet from the Teacher panel and then asking for them in the chat (including the audio player and byte-range playback that Safari needs), the zip backup and restore, deleting files, the greeting and colour editor, the Paid AI tab (against a stand-in service, and a real service that correctly refused a made-up key), the quiz, the launcher's setup, start, doctor, autostart and test commands, and the screens at phone, tablet, laptop and Pi-screen sizes with no sideways scrolling, and the hands-free conversation (with a simulated microphone and simulated voices: it listens, answers aloud, never listens while she talks, ends on "goodbye" or "stop", on the Stop button or after silence, can be interrupted by a tap, handles a spoken quiz, and can start by itself). The words on the screen were checked to exist in all four languages with the same blanks to fill in, every tap-to-ask question was asked in each language and got a real answer, and the whole screen was run in French, Spanish and German (phone, tablet, laptop and desktop, girl and boy) with no errors. There are 42 automatic backend tests (`python marshie.py test`), including one that checks no AI key is written anywhere in the project. **Not yet tried:** how French, Spanish and German sound with real Apple or Microsoft voices, and real listening in those languages (the tests used stand-ins), so please try each language with a microphone on the Mac before the event. Vercel's runtime was simulated locally.
 
 **Not yet tried on real hardware or services:** real speech recognition and real Apple or Microsoft voices (the tests used stand-ins, so please try a conversation on your Mac before the event), the offline voice downloads and speaking/listening (Piper and Vosk), uploading a recording and having Vosk write it out, the Raspberry Pi 5 itself, Windows and macOS, an actual Vercel deployment, and a paid AI key from Claude or OpenAI (the request format is written to their documentation, and the Test button will tell you at once if something is off). The code is written to be portable, and `python marshie.py doctor` and the voice self-test are there to show quickly if something on your machine differs. Please try the voice, the microphone and the AI test the day before the event.
 

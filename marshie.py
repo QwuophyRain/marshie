@@ -5,6 +5,7 @@
     python marshie.py setup        first-time setup only (you can pick a teacher PIN)
     python marshie.py start        start Marshie and open her in the browser
     python marshie.py kiosk        start Marshie and open her full screen (for the school screen)
+    python marshie.py key          save your paid AI key in the private .env file (it is never shown or committed)
     python marshie.py voice        add Marshie's offline voice and ears (downloads about 120 MB)
     python marshie.py build        rebuild the screen (only needed after editing frontend/src)
     python marshie.py autostart    start Marshie by herself when this computer turns on
@@ -16,6 +17,7 @@ Uses the Python standard library only, so it runs before anything else is instal
 from __future__ import annotations
 
 import argparse
+import getpass
 import hashlib
 import json
 import os
@@ -154,6 +156,30 @@ def sync_packages(files: tuple[str, ...] = ("requirements.txt",)) -> None:
     stamp.write_text(json.dumps(have))
 
 
+def provider_for(key: str) -> str:
+    """Which service a key belongs to, from how it starts: Anthropic keys begin with sk-ant, OpenAI's with sk-."""
+    return "anthropic" if key.startswith("sk-ant") else "openai"
+
+
+def looks_like_key(key: str) -> bool:
+    return len(key) >= 20 and not re.search(r"\s", key) and key.startswith("sk-")
+
+
+def ask_for_key(prompt: str = "Paste your AI key and press Enter (nothing shows while you paste; Enter alone skips): ") -> str:
+    """Read a key without echoing it, save it in .env, and say what was saved (never the key itself)."""
+    key = getpass.getpass(prompt).strip().strip('"').strip("'")
+    if not key:
+        return ""
+    if not looks_like_key(key):
+        say("  That does not look like an AI key (they start with sk- and have no spaces), so I did not save it.")
+        return ""
+    provider = provider_for(key)
+    set_env_value("LLM_PROVIDER", provider)
+    set_env_value("LLM_API_KEY", key)
+    ok(f"AI key saved in the private .env file ({provider}, ends in …{key[-4:]})")
+    return key
+
+
 def ensure_env_file(ask: bool = False) -> None:
     path = ROOT / ".env"
     if path.exists():
@@ -172,6 +198,10 @@ def ensure_env_file(ask: bool = False) -> None:
             text = re.sub(r"(?m)^SCHOOL_NAME=.*$", lambda _m: f"SCHOOL_NAME={school}", text)
     path.write_text(text, encoding="utf-8")
     say("  Made the settings file (.env).")
+    if ask and sys.stdin.isatty():
+        say("")
+        say("Optional paid AI: it lets Marshie answer questions her own knowledge cannot. You can skip this and add a key later with:  python marshie.py key")
+        ask_for_key()
 
 
 def frontend_ready() -> bool:
@@ -293,6 +323,29 @@ def cmd_setup(args) -> None:
     say("All set. Start Marshie with:  python marshie.py start")
     say("For the school screen:       python marshie.py kiosk")
     say("To give her a voice:         python marshie.py voice")
+
+
+def cmd_key(args) -> None:
+    ensure_env_file()
+    cfg = read_env_file()
+    if args.remove:
+        set_env_value("LLM_PROVIDER", "")
+        set_env_value("LLM_API_KEY", "")
+        ok("The AI key was removed from .env.")
+        return
+    if args.status:
+        if cfg.get("LLM_API_KEY"):
+            ok(f"An AI key is saved in .env ({cfg.get('LLM_PROVIDER') or provider_for(cfg['LLM_API_KEY'])}, ends in …{cfg['LLM_API_KEY'][-4:]})")
+        else:
+            say("  No AI key in .env. Add one with:  python marshie.py key")
+        return
+    if not sys.stdin.isatty():
+        fail("This needs a terminal so you can paste the key. Open Terminal (or Warp), then run:  python marshie.py key")
+    say("")
+    say("Your key is saved only in the private .env file on this computer. It is never printed and never goes to GitHub.")
+    if not ask_for_key("Paste your AI key and press Enter (nothing shows while you paste): "):
+        fail("No key was saved.")
+    say("Now restart Marshie (press Ctrl+C, then run  python marshie.py start). The Teacher panel, Paid AI tab, will show she is connected.")
 
 
 def serve(args, kiosk: bool = False) -> None:
@@ -566,7 +619,7 @@ def cmd_doctor(args) -> None:
         if cfg.get("LLM_PROVIDER"):
             ok(f"AI helper is set up in .env ({cfg['LLM_PROVIDER']})")
         else:
-            say("        Paid AI: not set in .env (optional; you can add it in the Teacher panel, Paid AI tab)")
+            say("        Paid AI: not set in .env (optional; run  python marshie.py key  or use the Teacher panel, Paid AI tab)")
     else:
         bad("No .env yet: run  python marshie.py setup")
     model = ROOT / "voices" / Path(cfg.get("PIPER_MODEL") or f"{DEFAULT_PIPER_VOICE}.onnx").name
@@ -600,6 +653,9 @@ def main() -> None:
     serving(sub.add_parser("kiosk", help="start Marshie and open her full screen"))
     sub.add_parser("setup", help="first-time setup")
     sub.add_parser("build", help="rebuild the screen (needs Node.js)")
+    k = sub.add_parser("key", help="save your paid AI key in the private .env file")
+    k.add_argument("--status", action="store_true", help="say whether a key is saved (never shows it)")
+    k.add_argument("--remove", action="store_true", help="remove the saved key")
     v = sub.add_parser("voice", help="install the offline voice and listening")
     v.add_argument("--piper-voice", default=DEFAULT_PIPER_VOICE, help=f"Piper voice name, default {DEFAULT_PIPER_VOICE}. More lifelike: en_US-lessac-medium or en_US-amy-medium")
     v.add_argument("--only", choices=["both", "talk", "listen"], default="both")
@@ -612,7 +668,7 @@ def main() -> None:
     args = parser.parse_args()
     if not args.command:
         args = parser.parse_args(["start"])
-    handlers = {"start": cmd_start, "kiosk": cmd_kiosk, "setup": cmd_setup, "build": cmd_build, "voice": cmd_voice,
+    handlers = {"start": cmd_start, "kiosk": cmd_kiosk, "setup": cmd_setup, "build": cmd_build, "key": cmd_key, "voice": cmd_voice,
                 "autostart": cmd_autostart, "doctor": cmd_doctor, "test": cmd_test}
     try:
         handlers[args.command](args)

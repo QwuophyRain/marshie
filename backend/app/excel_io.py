@@ -19,6 +19,7 @@ from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
 
+from . import i18n
 from .safety import has_personal_contact, looks_inappropriate
 
 PINK = "F9B7CF"
@@ -29,8 +30,9 @@ CATEGORIES = [
     "Ghana History", "World History", "Geography", "Arts & Creativity", "Music", "Health & Environment",
     "Computing & ICT", "Our School", "Fun Facts", "Other",
 ]
-QA_COLS = ["Category", "Question", "Answer", "Keywords", "Short Answer (for quiz)", "Source", "Gathered By", "Class"]
-FACT_COLS = ["Topic", "Fact", "Category", "Source", "Gathered By", "Class"]
+QA_COLS = ["Category", "Question", "Answer", "Keywords", "Short Answer (for quiz)", "Source", "Gathered By", "Class", "Language"]
+FACT_COLS = ["Topic", "Fact", "Category", "Source", "Gathered By", "Class", "Language"]
+LANGUAGE_CHOICES = '"English,French,Spanish,German"'
 MAX_ROWS = 5000
 MAX_TEXT = 1500
 
@@ -99,6 +101,7 @@ def build_template(kind: str = "all", school: str = "", class_name: str = "", ca
         ("", False),
         ("Keywords (optional) help Marshie find the answer: separate with commas, e.g.  capital, city, Accra", False),
         ("Short Answer (optional) is used when Marshie quizzes you: just the key word, e.g.  Accra", False),
+        ("Language (optional): English, French, Spanish or German. Write the question and answer in that language. Blank means English.", False),
     ]
     for r, (text, bold) in enumerate(lines, 1):
         cell = ws.cell(row=r, column=1, value=text)
@@ -113,6 +116,11 @@ def build_template(kind: str = "all", school: str = "", class_name: str = "", ca
     cat_range = f"=Lists!$A$1:$A${len(CATEGORIES)}"
     pre_cat = category if category in CATEGORIES else ""
 
+    def add_language_validation(sheet, col_letter: str, last_row: int) -> None:
+        dv = DataValidation(type="list", formula1=LANGUAGE_CHOICES, allow_blank=True, showErrorMessage=False)
+        sheet.add_data_validation(dv)
+        dv.add(f"{col_letter}3:{col_letter}{last_row}")
+
     def add_category_validation(sheet, col_letter: str, last_row: int) -> None:
         dv = DataValidation(type="list", formula1=cat_range, allow_blank=True, showErrorMessage=False)
         sheet.add_data_validation(dv)
@@ -120,19 +128,21 @@ def build_template(kind: str = "all", school: str = "", class_name: str = "", ca
 
     if want_qa:
         qa = wb.create_sheet("Q&A")
-        _style_header(qa, QA_COLS, [20, 42, 60, 24, 22, 24, 20, 14])
+        _style_header(qa, QA_COLS, [20, 42, 60, 24, 22, 24, 20, 14, 14])
         _example(qa, 2, ["EXAMPLE: Science", "What do plants need to grow?", "Plants need sunlight, water, air and good soil to grow.",
-                         "plants, grow, sunlight", "sunlight and water", "Science book, Class 4", "Ama", class_name or "Class 4"])
+                         "plants, grow, sunlight", "sunlight and water", "Science book, Class 4", "Ama", class_name or "Class 4", "English"])
         _blank_area(qa, len(QA_COLS), 3, rows + 2, {1: pre_cat, 8: class_name})
         add_category_validation(qa, "A", rows + 2)
+        add_language_validation(qa, "I", rows + 2)
 
     if want_facts:
         fa = wb.create_sheet("Facts")
-        _style_header(fa, FACT_COLS, [28, 70, 22, 26, 20, 14])
+        _style_header(fa, FACT_COLS, [28, 70, 22, 26, 20, 14, 14])
         _example(fa, 2, ["EXAMPLE: Baobab tree", "A baobab tree can live for more than a thousand years and store water in its trunk.",
-                         "Science", "Visit to the school garden", "Kofi", class_name or "Class 4"])
+                         "Science", "Visit to the school garden", "Kofi", class_name or "Class 4", "English"])
         _blank_area(fa, len(FACT_COLS), 3, rows + 2, {3: pre_cat, 6: class_name})
         add_category_validation(fa, "C", rows + 2)
+        add_language_validation(fa, "G", rows + 2)
 
     if want_data:
         cols = [c.strip() for c in (columns or []) if c and c.strip()] or ["Name", "Item", "Value", "Date", "Notes"]
@@ -181,7 +191,7 @@ _ALIASES = {
     "category": "category", "subject": "category", "topic": "topic", "fact": "fact", "facts": "fact",
     "keywords": "keywords", "keyword": "keywords", "tags": "keywords",
     "shortanswerforquiz": "short", "shortanswer": "short", "short": "short", "quizanswer": "short",
-    "source": "source", "gatheredby": "added_by", "student": "added_by", "name": "added_by", "class": "class",
+    "language": "lang", "lang": "lang", "source": "source", "gatheredby": "added_by", "student": "added_by", "name": "added_by", "class": "class",
 }
 
 
@@ -258,8 +268,8 @@ def parse_workbook(data: bytes, filename: str) -> dict:
                     if not topic or not fact:
                         result["errors"].append({"sheet": title, "row": line, "message": "Needs both a Topic and a Fact."})
                         continue
-                    entry = {"question": [f"Tell me about {topic}", f"What is {topic}", f"Who is {topic}", topic],
-                             "answer": fact, "keywords": topic, "category": rec.get("category") or "Our School"}
+                    entry = {"question": [q.format(t=topic) for q in i18n.TOPIC_QUESTIONS[i18n.clean(rec.get("lang", ""))]],
+                             "answer": fact, "keywords": topic, "category": rec.get("category") or "Our School", "lang": rec.get("lang", "")}
                 else:
                     if not rec.get("question") and not rec.get("answer"):
                         continue                      # blank template row (only Category/Class pre-filled)
@@ -267,7 +277,7 @@ def parse_workbook(data: bytes, filename: str) -> dict:
                         result["errors"].append({"sheet": title, "row": line, "message": "Needs both a Question and an Answer."})
                         continue
                     entry = {"question": rec["question"], "answer": rec["answer"], "keywords": rec.get("keywords", ""),
-                             "short": rec.get("short", ""), "category": rec.get("category") or "General"}
+                             "short": rec.get("short", ""), "category": rec.get("category") or "General", "lang": rec.get("lang", "")}
                 entry["source"] = rec.get("source", "")
                 entry["added_by"] = ", ".join(x for x in (rec.get("added_by"), rec.get("class")) if x)
                 text = " ".join([entry["answer"], entry["keywords"] if isinstance(entry["keywords"], str) else "", rec.get("question", rec.get("topic", ""))])
@@ -323,10 +333,10 @@ def export_workbook(entries: list[dict], datasets: list[dict]) -> bytes:
     wb = Workbook()
     ws = wb.active
     ws.title = "Q&A"
-    _style_header(ws, QA_COLS, [20, 42, 60, 24, 22, 24, 20, 14])
+    _style_header(ws, QA_COLS, [20, 42, 60, 24, 22, 24, 20, 14, 14])
     for r, e in enumerate(entries, 2):
         vals = [e["category"], e["question"], e["answer"], ", ".join(e.get("keywords", [])), e.get("short", ""),
-                e.get("source", ""), e.get("added_by", ""), ""]
+                e.get("source", ""), e.get("added_by", ""), "", i18n.name(e.get("lang") or "en")]
         for c, v in enumerate(vals, 1):
             cell = ws.cell(row=r, column=c, value=v)
             cell.alignment = Alignment(wrap_text=True, vertical="top")

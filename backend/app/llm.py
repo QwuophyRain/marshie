@@ -20,7 +20,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-from . import config
+from . import config, i18n
 
 PROVIDERS = ("anthropic", "openai")
 DEFAULT_MODEL = {"anthropic": "claude-haiku-5-5", "openai": "gpt-4o-mini"}
@@ -53,6 +53,17 @@ SYSTEM = (
     "Never ask for or repeat private details (full names with addresses, phone numbers, passwords). "
     "Refuse anything unsafe or unkind in a friendly way and suggest asking a teacher. Do not use emojis or markdown."
 )
+
+
+def system_prompt(lang: str = "en") -> str:
+    text = SYSTEM.format(name=config.BOT_NAME, school=config.SCHOOL_NAME)
+    lang = i18n.clean(lang)
+    if lang != "en":
+        language = i18n.name(lang)
+        text += (f" The child is talking in {language}, so always reply in {language}, in simple, correct {language} a child understands. "
+                 f"The FACTS may be written in English: use them, but answer in {language}. Keep names such as {config.SCHOOL_NAME}, "
+                 "Ghana and Twi words as they are.")
+    return text
 
 
 # --------------------------------------------------------------------------- settings
@@ -187,7 +198,7 @@ def _call(cfg: dict, system: str, turns: list[dict], max_tokens: int) -> str:
     return (data["choices"][0]["message"]["content"] or "").strip()
 
 
-def ask(question: str, facts: list[str], history: list[dict] | None = None, cfg: dict | None = None) -> str | None:
+def ask(question: str, facts: list[str], history: list[dict] | None = None, cfg: dict | None = None, lang: str = "en") -> str | None:
     """Returns Marshie's answer, or None if the AI is off, over its daily limit, or fails (the caller falls back kindly)."""
     cfg = cfg or resolve()
     if not provider(cfg):
@@ -195,7 +206,7 @@ def ask(question: str, facts: list[str], history: list[dict] | None = None, cfg:
     if not _take(int(cfg.get("daily_limit") or DEFAULT_LIMIT)):
         print("[marshie] AI daily limit reached; using local knowledge only")
         return None
-    system = SYSTEM.format(name=config.BOT_NAME, school=config.SCHOOL_NAME)
+    system = system_prompt(lang)
     if facts:
         system += "\n\nFACTS:\n" + "\n".join(f"- {f}" for f in facts[:5])
     turns = [{"role": h["role"], "content": h["content"][:600]} for h in (history or [])[-6:]
@@ -206,6 +217,28 @@ def ask(question: str, facts: list[str], history: list[dict] | None = None, cfg:
     except Exception as exc:
         print(f"[marshie] AI unavailable, using local knowledge only: {_friendly(exc, cfg['key'])}")
         return None
+
+
+def translate(text: str, target: str, cfg: dict | None = None) -> str | None:
+    """Translate a short text (a child's question, or one of Marshie's answers) into French, Spanish, German or English.
+    Returns None when the AI is off, over its daily limit, or fails; the caller then falls back to what she knows."""
+    cfg = cfg or resolve()
+    text = " ".join((text or "").split())
+    if not text or not provider(cfg):
+        return None
+    if not _take(int(cfg.get("daily_limit") or DEFAULT_LIMIT)):
+        print("[marshie] AI daily limit reached; not translating")
+        return None
+    language = i18n.name(target)
+    system = (f"You translate short texts for a children's school chatbot. Translate the user's text into {language}. "
+              "Keep names such as Ecole Ronsard, Marshie, Ghana and Twi words unchanged. Do not answer the text and do not explain; "
+              "reply with the translation only, with no quotation marks.")
+    try:
+        out = _call(cfg, system, [{"role": "user", "content": text[:1200]}], 500)
+    except Exception as exc:
+        print(f"[marshie] translation unavailable: {_friendly(exc, cfg['key'])}")
+        return None
+    return out.strip().strip('"\u201c\u201d') or None
 
 
 def test(cfg: dict) -> dict:

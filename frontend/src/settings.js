@@ -9,14 +9,17 @@ export const VOICE_STYLES = {
 }
 
 const defaults = {
+  // language
+  language: 'en',       // en | fr | es | de: the words on screen, what she listens for and the voice she speaks with
   // voice
   voiceOn: true,
+  voiceGender: 'female', // female | male: a girl voice and a bow on her head, or a boy voice and a bow tie on his neck
   voiceStyle: 'natural', // natural | girl | custom (custom = the sliders were moved by hand)
   pitch: VOICE_STYLES.natural.pitch,           // browser voice pitch (0.1 - 2)
   rate: VOICE_STYLES.natural.rate,
   voiceName: '',        // '' = pick the best English voice on this computer automatically
   serverPitch: VOICE_STYLES.natural.serverPitch, // playback speed for the offline (Piper) voice, which also changes its pitch
-  lang: 'en-GH',        // browser speech recognition language
+  lang: 'en-GH',        // browser speech recognition language for English (French, Spanish and German follow `language`)
   // talking back and forth
   autoTalk: false,      // start the hands-free conversation by herself right after she wakes up (good for a school kiosk)
   chime: true,          // a soft sound when she starts listening, so children know it is their turn

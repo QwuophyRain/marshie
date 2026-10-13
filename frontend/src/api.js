@@ -1,4 +1,7 @@
 // Thin wrapper around Marshie's API. Same code runs on the Pi (served by FastAPI) and on Vercel (/api function).
+import { settings } from './settings'
+import { t } from './i18n'
+
 const BASE = import.meta.env.VITE_API_BASE || ''
 
 let adminToken = ''
@@ -24,14 +27,14 @@ async function request(path, { method = 'GET', body, form, raw, admin = false, s
   try {
     res = await fetch(BASE + path, { method, headers, body: payload, signal })
   } catch (e) {
-    const err = new Error('I can’t reach my brain right now. Is the server running?')
+    const err = new Error(t('err.offline'))
     err.offline = true
     throw err
   }
   if (!res.ok) {
     let detail = ''
     try { detail = (await res.json()).detail } catch { /* not json */ }
-    const err = new Error(typeof detail === 'string' && detail ? detail : `Something went wrong (${res.status}).`)
+    const err = new Error(typeof detail === 'string' && detail ? detail : t('err.generic', { status: res.status }))
     err.status = res.status
     throw err
   }
@@ -39,13 +42,18 @@ async function request(path, { method = 'GET', body, form, raw, admin = false, s
 }
 const json = async (path, opts) => (await request(path, opts)).json()
 
+// Everything a child does is sent with the language she picked (en, fr, es or de).
+const language = () => settings.language || 'en'
+
 export const api = {
   health: () => json('/api/health'),
-  ask: (question, history = []) => json('/api/ask', { method: 'POST', body: { question, history } }),
-  feedback: (p) => json('/api/feedback', { method: 'POST', body: p }),
-  teach: (p) => json('/api/teach', { method: 'POST', body: p }),
-  quiz: (category = '', level = 1) => json(`/api/quiz?category=${encodeURIComponent(category)}&level=${level}`),
-  quizCheck: (p) => json('/api/quiz/check', { method: 'POST', body: p }),
+  greeting: (lang = language()) => json(`/api/greeting?lang=${encodeURIComponent(lang)}`),
+  ask: (question, history = []) => json('/api/ask', { method: 'POST', body: { question, history, lang: language() } }),
+  feedback: (p) => json('/api/feedback', { method: 'POST', body: { lang: language(), ...p } }),
+  teach: (p) => json('/api/teach', { method: 'POST', body: { lang: language(), ...p } }),
+  quiz: (category = '', level = 1) =>
+    json(`/api/quiz?category=${encodeURIComponent(category)}&level=${level}&lang=${language()}`),
+  quizCheck: (p) => json('/api/quiz/check', { method: 'POST', body: { lang: language(), ...p } }),
   tts: async (text, lengthScale = 1.25) =>
     (await request('/api/tts', { method: 'POST', body: { text, length_scale: lengthScale } })).arrayBuffer(),
   stt: async (pcm) => (await json('/api/stt', { method: 'POST', raw: pcm })).text,

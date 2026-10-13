@@ -19,7 +19,7 @@ import uuid
 from pathlib import Path
 from typing import Any
 
-from . import config
+from . import config, i18n
 from . import media as media_mod
 
 STATE_KEY = "marshie_state"
@@ -158,9 +158,13 @@ class Store:
             except Exception as exc:                      # a bad file must not stop the school event
                 print(f"[marshie] skipped {f.name}: {exc}")
                 continue
-            if isinstance(data, dict):                    # also accept a state/export file
+            file_lang = ""
+            if isinstance(data, dict):                    # also accept a state/export file, or {"lang": "fr", "entries": [...]}
+                file_lang = str(data.get("lang") or "")
                 data = data.get("entries", [])
             for raw in data:
+                if file_lang and not raw.get("lang"):
+                    raw = {**raw, "lang": file_lang}
                 entry = self.make_entry(raw, via="seed")
                 if entry and entry["fp"] not in seen:
                     seen.add(entry["fp"])
@@ -243,6 +247,7 @@ class Store:
             "upload": str(raw.get("upload") or ""),           # the Excel upload that added it (so the whole upload can be undone)
             "kind": "passage" if raw.get("kind") == "passage" else "",
             "mood": mood if mood in MOODS else "",
+            "lang": i18n.clean(raw.get("lang")),              # en | fr | es | de: the language the question and answer are written in
         }
 
     def all_entries(self) -> list[dict]:

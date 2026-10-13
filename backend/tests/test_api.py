@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import io
 import os
+import re
 import sys
 import tempfile
 from pathlib import Path
@@ -667,6 +668,288 @@ def test_online_memory_store_keeps_files_and_says_when_full():
         config.KV_URL, config.KV_TOKEN, store_mod.KVBackend._cmd = saved
 
 
+# ----------------------------------------------------------------------------------------- French, Spanish and German
+def ask_in(lang: str, question: str) -> dict:
+    from app.main import _hits
+    _hits.clear()                                          # these tests ask more than the 60-a-minute guard allows
+    r = client.post("/api/ask", json={"question": question, "lang": lang})
+    assert r.status_code == 200, r.text
+    return r.json()
+
+
+def test_marshie_answers_in_french_spanish_and_german():
+    fr = ask_in("fr", "Qui est la directrice de l'école ?")
+    assert fr["source"] == "knowledge" and "Agbenyeke" in fr["answer"] and fr["lang"] == "fr"
+    assert "Kinshasa" in ask_in("fr", "ou est notre ecole")["answer"]                 # a keyboard without accents is fine
+    assert "ocho" in ask_in("es", "¿Cuántos planetas hay?")["answer"]
+    assert "Naturwissenschaften" in ask_in("de", "Wofür steht STEAM?")["answer"]
+    assert "Accra" in ask_in("de", "Was ist die Hauptstadt von Ghana?")["answer"]
+    for lang, hello in (("fr", "Bonjour"), ("es", "Hola"), ("de", "Hallo")):            # small talk is in her own language
+        r = ask_in(lang, hello)
+        assert r["source"] == "knowledge" and r["lang"] == lang and "Marshie" in r["answer"] or "friend" not in r["answer"].lower()
+    # English is unchanged, and a French sentence does not leak into English answers
+    assert "Principal" in ask_in("en", "Who is the principal?")["answer"]
+    assert ask_in("en", "Qui est la directrice de l'école ?")["source"] != "knowledge" or "Agbenyeke" not in ask_in("en", "Qui est la directrice de l'école ?")["answer"]
+    # not knowing is said in the child's language, and she asks to be taught
+    u = ask_in("fr", "flibber jabber wockle zorp quibble")
+    assert u["source"] == "unknown" and u["can_teach"] and "don't" not in u["answer"] and u["lang"] == "fr"
+    assert ask_in("es", "")["lang"] == "es"
+
+
+def test_other_languages_have_a_greeting_and_a_list():
+    h = client.get("/api/health").json()
+    assert [x["code"] for x in h["languages"]] == ["en", "fr", "es", "de"]
+    for lang, word in (("fr", "Bonjour"), ("es", "Hola"), ("de", "Hallo")):
+        g = client.get("/api/greeting", params={"lang": lang}).json()
+        assert word in g["text"][:9] and "Marshie" in g["text"] and g["lang"] == lang and g["spoken"]
+    assert client.get("/api/greeting", params={"lang": "xx"}).json()["text"].startswith("Hello")      # unknown = English
+
+
+def test_sums_are_understood_and_read_aloud_in_each_language():
+    r = ask_in("fr", "Combien font 12 fois 7 ?")
+    assert r["source"] == "math" and r["answer"].endswith("84") and "fois" in r["spoken"] and "égale" in r["spoken"]
+    assert ask_in("fr", "quatre-vingt-dix moins sept")["answer"].endswith("83")
+    assert ask_in("es", "¿Cuánto es treinta y cinco menos diez?")["answer"].endswith("25")
+    assert ask_in("es", "raíz cuadrada de 81")["answer"].endswith("9")
+    de = ask_in("de", "Was ist 12 mal 7?")
+    assert de["source"] == "math" and de["answer"].endswith("84") and "mal" in de["spoken"] and " ist " in de["spoken"]
+    assert "durch null" in ask_in("de", "Was ist 10 geteilt durch 0")["answer"]
+    assert ask_in("fr", "2,5 fois 4")["answer"].startswith("2,5") and ask_in("fr", "2,5 fois 4")["answer"].endswith("10")
+    from app.brain import speakable
+    assert speakable("3 * 4 = 12", "fr") == "3 fois 4 égale 12"
+    assert speakable("3 * 4 = 12", "es") == "3 por 4 es igual a 12"
+    assert speakable("Son e-mail est a@b.com", "de") == "Son e-mail est a at b Punkt com"
+
+
+def test_quiz_in_french_spanish_and_german():
+    for lang, start in (("fr", "Combien font"), ("es", "¿Cuánto es"), ("de", "Was ist")):
+        qz = client.get("/api/quiz", params={"category": "Arithmetic", "lang": lang}).json()
+        assert qz["kind"] == "math" and qz["question"].startswith(start), qz
+        a, b = [int(x) for x in re.findall(r"\d+", qz["question"])]
+        op = "+" if re.search(r"plus|más", qz["question"]) else "-" if re.search(r"moins|menos|minus", qz["question"]) else "*" if re.search(r"fois|por|mal", qz["question"]) else "/"
+        want = {"+": a + b, "-": a - b, "*": a * b, "/": a // b if b else 0}[op]
+        ok = client.post("/api/quiz/check", json={"kind": "math", "response": str(want), "question": qz["question"], "token": qz["token"], "lang": lang}).json()
+        assert ok["correct"] is True, (qz, want)
+    # saying the number in words works too
+    assert client.post("/api/quiz/check", json={"kind": "math", "response": "vingt-deux", "question": "Combien font 11 plus 11 ?",
+                                                "token": __import__("app.main", fromlist=["brain"]).brain._sign("Combien font 11 plus 11 ?", "22"), "lang": "fr"}).json()["correct"]
+    # asking for a quiz in your own words starts one
+    for lang, words in (("fr", "Fais-moi un quiz"), ("es", "Hazme un quiz"), ("de", "Frag mich")):
+        r = ask_in(lang, words)
+        assert r["source"] == "quiz" and r["quiz"]["question"], r
+    # a knowledge question comes in the same language, and the short answer is accepted
+    from app.main import store
+    for _ in range(80):
+        k = client.get("/api/quiz", params={"lang": "fr"}).json()
+        if k["kind"] == "knowledge":
+            break
+    assert k["kind"] == "knowledge" and store.find_entry(k["entry_id"])["lang"] == "fr"
+    entry = store.find_entry(k["entry_id"])
+    assert client.post("/api/quiz/check", json={"kind": "knowledge", "response": entry["short"], "entry_id": k["entry_id"], "lang": "fr"}).json()["correct"]
+
+
+def test_teaching_in_french_stays_in_french():
+    q = "Comment s'appelle notre mascotte, le lion violet ?"
+    assert ask_in("fr", q)["source"] == "unknown"
+    t = client.post("/api/teach", json={"question": q, "answer": "Notre mascotte est Léo le lion violet.", "taught_by": "Awa", "lang": "fr"}).json()
+    assert t["ok"] and "Youpi" in t["message"]
+    again = ask_in("fr", q)
+    assert "Léo" in again["answer"] and again["source"] == "knowledge" and again["lang"] == "fr"
+    assert "Léo" not in ask_in("en", q)["answer"]                                            # it belongs to French only
+    bad = client.post("/api/teach", json={"question": "Que dit-on ?", "answer": "Tu es un connard", "lang": "fr"}).json()
+    assert not bad["ok"] and "gentilles" in bad["message"]
+    fb = client.post("/api/feedback", json={"question": "x", "entry_id": None, "good": False, "lang": "de"}).json()
+    assert fb["ask_to_teach"] and "leid" in fb["message"]
+
+
+def test_kindness_filter_covers_french_spanish_and_german():
+    for lang, rude in (("fr", "tu es un connard"), ("es", "eres un pendejo"), ("de", "du Arschloch")):
+        r = ask_in(lang, rude)
+        assert r["source"] == "refused" and r["lang"] == lang, r
+
+
+def test_no_french_yet_in_english_knowledge_falls_back_politely_and_ai_translates():
+    from app import llm
+    # offline: a clear match in the English knowledge is shared, and she says so in French
+    r = ask_in("fr", "Qui était Kwame Nkrumah ?")
+    assert r["source"] == "knowledge" and r["answer"].startswith("Je ne connais cette réponse qu'en anglais")
+    assert [p["lang"] for p in r["parts"]] == ["fr", "en"]
+    # with the paid AI on, the question is translated, searched in English, and the answer translated back
+    h = login()
+    calls: list = []
+
+    def fake_post(url, headers, payload):
+        system = payload.get("system") or payload["messages"][0]["content"]
+        user = payload["messages"][-1]["content"]
+        calls.append((system, user))
+        if "You translate" in system:
+            if "French" in system:
+                return {"content": [{"type": "text", "text": "Kwame Nkrumah a été le premier président du Ghana."}]}
+            return {"content": [{"type": "text", "text": "Who was Kwame Nkrumah?" if "Nkrumah" in user else "Why is the zorp quibble green?"}]}
+        return {"content": [{"type": "text", "text": "Les feuilles sont vertes grâce à la chlorophylle."}]}
+
+    real = llm._post
+    llm._post = fake_post
+    try:
+        client.put("/api/admin/ai", json={"provider": "anthropic", "key": "sk-ant-TESTKEY1234567890", "daily_limit": 50}, headers=h)
+        a = ask_in("fr", "Qui était Kwame Nkrumah ?")
+        assert a["source"] == "knowledge" and a["lang"] == "fr" and a["answer"].startswith("Kwame Nkrumah a été") and len(calls) == 2
+        n = len(calls)
+        b = ask_in("fr", "Pourquoi le zorp quibble est-il vert ?")
+        assert b["source"] == "llm" and b["lang"] == "fr" and "chlorophylle" in b["answer"] and len(calls) == n + 2
+        assert "French" in calls[-1][0] and "reply in French" in calls[-1][0]                  # the AI is told to answer in French
+        # English questions still cost one call, not two
+        n = len(calls)
+        ask_in("en", "flibber jabber wockle zorp quibble")
+        assert len(calls) == n + 1
+        # what is native to French never needs the AI
+        n = len(calls)
+        assert ask_in("fr", "Quelle est la capitale du Ghana ?")["source"] == "knowledge" and len(calls) == n
+    finally:
+        llm._post = real
+        client.delete("/api/admin/ai", headers=h)
+        llm._usage.update(day="", n=0)
+
+
+def test_excel_language_column_and_template():
+    from openpyxl import Workbook
+    h = login()
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Q&A"
+    ws.append(["Category", "Question", "Answer", "Language"])
+    ws.append(["Fun Facts", "Quelle est la couleur du baobab de l'école ?", "Le baobab de l'école est très vieux et très gros.", "French"])
+    ws.append(["Fun Facts", "What colour is the school bell tower?", "The school bell tower is blue.", ""])
+    buf = io.BytesIO()
+    wb.save(buf)
+    files = {"file": ("langs.xlsx", buf.getvalue(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
+    done = client.post("/api/admin/upload", headers=h, files=files, data={"commit": "true"}).json()
+    assert done["committed"] and done["added"] == 2
+    assert "très vieux" in ask_in("fr", "Quelle est la couleur du baobab de l'école ?")["answer"]
+    assert "blue" in ask_in("en", "What colour is the school bell tower?")["answer"]
+    tpl = load_workbook(io.BytesIO(client.get("/api/admin/template", headers=h).content))
+    assert tpl["Q&A"]["I1"].value == "Language" and tpl["Facts"]["G1"].value == "Language"
+    exp = load_workbook(io.BytesIO(client.get("/api/admin/export", params={"format": "xlsx"}, headers=h).content))
+    assert any(row[8] == "French" for row in exp["Q&A"].iter_rows(min_row=2, values_only=True) if len(row) > 8)
+
+
+# ------------------------------------------------------------------------------------------------ the screen's words
+PROJECT = Path(__file__).resolve().parents[2]
+
+
+def screen_words_report() -> dict | None:
+    """Runs frontend/scripts/check-i18n.mjs. None when Node (or the frontend packages) are not installed here."""
+    import json
+    import shutil
+    import subprocess
+    node = shutil.which("node")
+    script = PROJECT / "frontend" / "scripts" / "check-i18n.mjs"
+    if not node or not script.is_file() or not (PROJECT / "frontend" / "node_modules" / "esbuild").is_dir():
+        return None
+    done = subprocess.run([node, str(script)], capture_output=True, text=True, timeout=120)
+    assert done.stdout.strip(), done.stderr[-600:]
+    return json.loads(done.stdout)
+
+
+def test_every_word_on_the_screen_exists_in_english_french_spanish_and_german():
+    report = screen_words_report()
+    if report is None:
+        print("   (skipped: Node and the frontend packages are not installed here)")
+        return
+    assert report["problems"] == [], report["problems"]
+    assert report["keys"] >= 100 and report["used"] >= 100
+
+
+def test_every_tap_to_ask_question_gets_a_real_answer_in_every_language():
+    report = screen_words_report()
+    if report is None:
+        print("   (skipped: Node and the frontend packages are not installed here)")
+        return
+    assert set(report["chips"]) == {"en", "fr", "es", "de"}
+    for lang, questions in report["chips"].items():
+        assert len(questions) >= 30, (lang, len(questions))
+        for q in questions:
+            r = ask_in(lang, q)
+            assert r["source"] not in ("unknown", "refused", "error") and r["answer"].strip(), (lang, q, r["source"], r["answer"][:80])
+            assert r["lang"] == lang, (lang, q, r["lang"])
+
+
+# ------------------------------------------------------------------------------------------------ the AI key command
+def load_launcher():
+    import importlib
+    sys.path.insert(0, str(PROJECT))
+    try:
+        return importlib.import_module("marshie")
+    finally:
+        sys.path.remove(str(PROJECT))
+
+
+def test_key_command_saves_only_in_the_private_env_file():
+    import argparse
+    import contextlib
+    mod = load_launcher()
+    assert mod.provider_for("sk-ant-FAKE-for-testing-0000") == "anthropic" and mod.provider_for("sk-FAKE-for-testing-000000") == "openai"
+    assert not mod.looks_like_key("") and not mod.looks_like_key("hello there friend, this is not a key") and not mod.looks_like_key("sk-short")
+    assert mod.looks_like_key("sk-FAKE-for-testing-0000000")
+
+    folder = Path(tempfile.mkdtemp(prefix="marshie_key_"))
+    (folder / ".env.example").write_text("SECRET_KEY=change-me\nADMIN_PIN=2468\n# LLM_PROVIDER=\n# LLM_API_KEY=\n", encoding="utf-8")
+    real_root, real_getpass = mod.ROOT, mod.getpass.getpass
+    mod.ROOT = folder
+    out = io.StringIO()
+    try:
+        with contextlib.redirect_stdout(out):
+            mod.getpass.getpass = lambda _prompt="": "   "                                              # Enter alone skips
+            assert mod.ask_for_key() == "" and not (folder / ".env").exists()
+            mod.ensure_env_file()
+            mod.getpass.getpass = lambda _prompt="": "my teacher said hello"                          # not a key: refused
+            assert mod.ask_for_key() == "" and not mod.read_env_file().get("LLM_API_KEY")
+            fake_openai = "sk-FAKE-openai-testing-12345678"
+            mod.getpass.getpass = lambda _prompt="": f' "{fake_openai}" '                              # quotes and spaces are tidied away
+            assert mod.ask_for_key() == fake_openai
+            cfg = mod.read_env_file()
+            assert cfg["LLM_PROVIDER"] == "openai" and cfg["LLM_API_KEY"] == fake_openai and cfg["ADMIN_PIN"] == "2468"
+            fake_claude = "sk-ant-FAKE-claude-testing-12345678"
+            mod.getpass.getpass = lambda _prompt="": fake_claude
+            mod.ask_for_key()
+            cfg = mod.read_env_file()
+            assert cfg["LLM_PROVIDER"] == "anthropic" and cfg["LLM_API_KEY"] == fake_claude
+            assert (folder / ".env").read_text().count("LLM_API_KEY=") == 1                           # replaced, not repeated
+            mod.cmd_key(argparse.Namespace(status=True, remove=False))
+            mod.cmd_key(argparse.Namespace(status=False, remove=True))
+            assert mod.read_env_file()["LLM_API_KEY"] == "" and mod.read_env_file()["LLM_PROVIDER"] == ""
+            mod.cmd_key(argparse.Namespace(status=True, remove=False))
+    finally:
+        mod.ROOT, mod.getpass.getpass = real_root, real_getpass
+    shown = out.getvalue()
+    assert fake_openai not in shown and fake_claude not in shown, "the key must never be printed"
+    assert "…" + fake_claude[-4:] in shown                                                           # only the last four letters
+    parser = mod.build_parser() if hasattr(mod, "build_parser") else None
+    if parser:
+        assert parser.parse_args(["key", "--status"]).status is True
+
+
+def test_no_real_looking_ai_key_is_written_anywhere_in_the_project():
+    """Keys belong in .env or in Vercel's settings. This walks the project and fails on anything shaped like a real one."""
+    skip_dirs = {".git", ".venv", "node_modules", "dist", "data", "__pycache__", ".pytest_cache", "voices", "models"}
+    looks_real = re.compile(r"sk-(?:svcacct|proj|admin)-[A-Za-z0-9_\-]{20,}|sk-ant-api\d*-[A-Za-z0-9_\-]{20,}|sk-[A-Za-z0-9]{40,}")
+    found = []
+    for path in PROJECT.rglob("*"):
+        parts = set(path.relative_to(PROJECT).parts)
+        if parts & skip_dirs or not path.is_file() or path.name == ".env" or path.stat().st_size > 3_000_000:
+            continue
+        if path.suffix.lower() in {".png", ".jpg", ".jpeg", ".gif", ".webp", ".ico", ".zip", ".onnx", ".xlsx", ".woff", ".woff2", ".mp3", ".wav", ".mp4", ".pdf", ".docx"}:
+            continue
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (UnicodeDecodeError, OSError):
+            continue
+        if looks_real.search(text):
+            found.append(str(path.relative_to(PROJECT)))
+    assert not found, f"an AI key is written in: {found}"
+    assert ".env" in (PROJECT / ".gitignore").read_text().split(), ".env must be git-ignored"
+
+
 if __name__ == "__main__":
     failed = 0
     for name, fn in list(globals().items()):
@@ -676,5 +959,7 @@ if __name__ == "__main__":
                 print("PASS", name)
             except Exception as exc:                          # noqa: BLE001
                 failed += 1
+                import traceback
                 print("FAIL", name, "->", repr(exc)[:400])
+                traceback.print_exc()
     sys.exit(1 if failed else 0)

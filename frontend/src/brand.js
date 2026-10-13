@@ -2,6 +2,7 @@
 import { reactive } from 'vue'
 import { api } from './api'
 import { applyTheme, SCHOOL_COLOURS } from './theme'
+import { tIn } from './i18n'
 
 export const brand = reactive({
   loaded: false,
@@ -56,4 +57,23 @@ export async function loadBrand() {
     brand.loaded = true
     return null
   }
+}
+
+// ---- the greeting in each language. English is the school's own (a teacher may have rewritten it); the other three
+// come ready-made from the server. Until one has arrived, the built-in line is used, so waking her never has to wait.
+const greetings = reactive({})
+
+export function greetingFor(lang) {
+  if (lang === 'en') return { text: brand.greeting, spoken: brand.greetingSpoken }
+  const g = greetings[lang]
+  if (g) return g
+  return { text: tIn(lang, 'greeting.fallback', { name: brand.name, school: brand.school }), spoken: '' }
+}
+
+export async function loadGreeting(lang) {
+  if (lang === 'en' || greetings[lang]) return
+  try {
+    const g = await api.greeting(lang)
+    if (g?.text) greetings[lang] = { text: g.text, spoken: g.spoken || '' }
+  } catch { /* offline: the built-in line is used */ }
 }

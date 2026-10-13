@@ -17,6 +17,11 @@ function refreshVoices() {
   chosen.value = pickVoice()
 }
 const custom = () => { settings.voiceStyle = 'custom' }
+function pickGender(g) {            // a girl voice with a bow, or a boy voice with a bow tie
+  settings.voiceGender = g
+  settings.voiceName = ''
+  refreshVoices()
+}
 
 // ---- a button to try the microphone, with plain words about what went wrong
 const browser = browserInfo()
@@ -51,7 +56,7 @@ async function test() {
   const was = settings.voiceOn
   settings.voiceOn = true
   try {
-    await speak('Hello! I am Marshie, the marshmallow. Do you like my voice?')
+    await speak('Hello! I am Marshie, the marshmallow. Do you like my voice?', { lang: 'en' })
   } finally {
     settings.voiceOn = was
     testing.value = false
@@ -83,6 +88,18 @@ async function toggleFullscreen() {
         <input v-model="settings.voiceOn" type="checkbox" />
         <span><b>Talk out loud</b><br /><span class="hint">When this is off she only types, and her mouth still moves.</span></span>
       </label>
+
+      <fieldset class="styles">
+        <legend class="lbl">Girl or boy?</legend>
+        <label class="style" :class="{ on: settings.voiceGender !== 'male' }">
+          <input type="radio" name="vgender" :checked="settings.voiceGender !== 'male'" @change="pickGender('female')" />
+          <span><b>Girl</b><br /><span class="hint">A girl’s voice, and a bow on Marshie’s head.</span></span>
+        </label>
+        <label class="style" :class="{ on: settings.voiceGender === 'male' }">
+          <input type="radio" name="vgender" :checked="settings.voiceGender === 'male'" @change="pickGender('male')" />
+          <span><b>Boy</b><br /><span class="hint">A boy’s voice, and a bow tie on his neck. Children can also switch this in the menu.</span></span>
+        </label>
+      </fieldset>
 
       <fieldset class="styles">
         <legend class="lbl">How should she sound?</legend>
@@ -144,6 +161,10 @@ async function toggleFullscreen() {
           </details>
         </template>
       </template>
+      <p class="hint">
+        In French, Spanish and German she always uses the best voice installed in the browser, because the offline voice speaks English only.
+        On a Mac or Windows computer these voices are usually there already; on a Raspberry Pi add them in the system’s speech settings.
+      </p>
       <div><button class="btn pink" :disabled="testing" @click="test">{{ testing ? 'Talking…' : 'Hear Marshie talk' }}</button></div>
     </div>
 
@@ -165,7 +186,7 @@ async function toggleFullscreen() {
 
     <div class="tp-block">
       <h4>Listening</h4>
-      <p v-if="caps.stt_server" class="tp-note good">Marshie is using the offline listener on this computer. It works without the internet.</p>
+      <p v-if="caps.stt_server" class="tp-note good">Marshie is using the offline listener on this computer. It works without the internet, in English. For French, Spanish and German she uses the browser’s listening (Chrome or Edge).</p>
       <p v-else-if="caps.recognition && caps.secure" class="tp-note">Marshie is using the browser’s speech recognition. It works in Chrome and Edge and needs the internet.</p>
       <p v-else-if="!caps.secure" class="tp-note bad">The microphone only works on a secure address. Open Marshie at <code>http://localhost:8000</code> on this computer, or publish her online (which uses HTTPS).</p>
       <p v-else class="tp-note bad">This browser cannot listen. Children can still type, or you can use Chrome or Edge.</p>

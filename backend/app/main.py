@@ -21,7 +21,7 @@ from fastapi.responses import JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from . import config, docs, excel_io, llm, voice
+from . import config, docs, excel_io, i18n, llm, voice
 from . import media as media_mod
 from .brain import Brain
 from .store import StorageError, Store
@@ -103,6 +103,7 @@ def limit(request: Request, bucket: str, count: int, seconds: int) -> None:
 class AskIn(BaseModel):
     question: str = Field(max_length=500)
     history: list[dict] = []
+    lang: str = Field(default="en", max_length=12)
 
 
 class FeedbackIn(BaseModel):
@@ -111,6 +112,7 @@ class FeedbackIn(BaseModel):
     good: bool
     correction: str = Field(default="", max_length=1000)
     taught_by: str = Field(default="", max_length=60)
+    lang: str = Field(default="en", max_length=12)
 
 
 class TeachIn(BaseModel):
@@ -119,6 +121,7 @@ class TeachIn(BaseModel):
     category: str = Field(default="", max_length=60)
     keywords: str = Field(default="", max_length=200)
     taught_by: str = Field(default="", max_length=60)
+    lang: str = Field(default="en", max_length=12)
 
 
 class QuizCheckIn(BaseModel):
@@ -127,6 +130,7 @@ class QuizCheckIn(BaseModel):
     question: str = ""
     token: str = ""
     entry_id: str = ""
+    lang: str = Field(default="en", max_length=12)
 
 
 class TtsIn(BaseModel):
@@ -176,7 +180,15 @@ def health():
             "greeting": hello["text"], "greeting_spoken": hello["spoken"],
             "theme": current_theme(), "logo": logo_url(), "school_url": config.SCHOOL_URL,
             "capabilities": caps, "entries": len(store.all_entries()), "persistent": store.persistent,
-            "on_vercel": config.IS_VERCEL}
+            "on_vercel": config.IS_VERCEL,
+            "languages": [{"code": k, "name": v["name"], "native": v["native"], "speech": v["speech"]} for k, v in i18n.LANGS.items()]}
+
+
+@app.get("/api/greeting")
+def greeting(lang: str = "en"):
+    """The first words in French, Spanish, German or English (the English words are the ones a teacher can change)."""
+    store.refresh_if_stale()
+    return brain.greeting(lang)
 
 
 @app.get("/api/media/{media_id}")
@@ -207,7 +219,7 @@ def get_media(media_id: str, request: Request):
 @app.post("/api/ask")
 def ask(body: AskIn, request: Request):
     limit(request, "ask", 60, 60)
-    result = brain.ask(body.question, body.history)
+    result = brain.ask(body.question, body.history, body.lang)
     if result["source"] == "unknown":
         store.log_unknown(body.question)
     return result
@@ -216,7 +228,7 @@ def ask(body: AskIn, request: Request):
 @app.post("/api/feedback")
 def feedback(body: FeedbackIn, request: Request):
     limit(request, "feedback", 40, 60)
-    res = brain.feedback(body.question, body.entry_id, body.good, body.correction, body.taught_by)
+    res = brain.feedback(body.question, body.entry_id, body.good, body.correction, body.taught_by, body.lang)
     if res.get("ok") and body.correction.strip() and not res.get("ask_to_teach"):
         store.resolve_unknown(body.question)
     return res
@@ -225,7 +237,7 @@ def feedback(body: FeedbackIn, request: Request):
 @app.post("/api/teach")
 def teach(body: TeachIn, request: Request):
     limit(request, "teach", 20, 60)
-    res = brain.teach(body.question, body.answer, body.category, body.keywords, body.taught_by)
+    res = brain.teach(body.question, body.answer, body.category, body.keywords, body.taught_by, lang=body.lang)
     if res.get("ok"):
         store.resolve_unknown(body.question)
     return res
@@ -237,13 +249,13 @@ def categories():
 
 
 @app.get("/api/quiz")
-def quiz(category: str = "", level: int = 1):
-    return brain.quiz_new(category, level)
+def quiz(category: str = "", level: int = 1, lang: str = "en"):
+    return brain.quiz_new(category, level, lang)
 
 
 @app.post("/api/quiz/check")
 def quiz_check(body: QuizCheckIn):
-    return brain.quiz_check(body.kind, body.response, body.question, body.token, body.entry_id)
+    return brain.quiz_check(body.kind, body.response, body.question, body.token, body.entry_id, body.lang)
 
 
 @app.post("/api/tts")
@@ -388,7 +400,7 @@ def list_entries(q: str = "", via: str = "", status: str = "", category: str = "
         ql = q.lower()
         rows = [e for e in rows if ql in e["question"].lower() or ql in e["answer"].lower()]
     limit = max(1, min(limit, 200))
-    slim = [{k: e.get(k, "") for k in ("id", "category", "question", "answer", "via", "added_by", "source", "created")}
+    slim = [{k: e.get(k, "") for k in ("id", "category", "question", "answer", "via", "added_by", "source", "created", "lang")}
             | {"status": e.get("status", "live"), "has_media": bool(e.get("media"))} for e in rows[offset:offset + limit]]
     return {"total": len(rows), "entries": slim}
 
@@ -413,11 +425,12 @@ class ManualEntry(BaseModel):
     category: str = "General"
     keywords: str = ""
     short: str = ""
+    lang: str = Field(default="en", max_length=12)
 
 
 @app.post("/api/admin/entries", dependencies=[Depends(admin)])
 def add_entry(body: ManualEntry):
-    res = brain.teach(body.question, body.answer, body.category, body.keywords, "Teacher", moderate=False)
+    res = brain.teach(body.question, body.answer, body.category, body.keywords, "Teacher", moderate=False, lang=body.lang)
     if res.get("ok") and body.short:
         last = store.state["entries"][-1]
         if last["question"] == body.question.strip():

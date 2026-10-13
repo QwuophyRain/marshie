@@ -16,6 +16,8 @@ defineProps({ id: { type: String, required: true } })
     <g v-else-if="id === 'ghana'"><path d="M24 5l5.600 12.200 13.400 1.500-10 9 2.800 13.200L24 34l-11.800 6.900 2.800-13.200-10-9 13.400-1.500z" fill="currentColor" /></g>
     <!-- arts: palette -->
     <g v-else-if="id === 'arts'"><path d="M24 6C13 6 5 14 5 24s8 18 18 18c3 0 4-2 3-4-1-2.500 0-5 3-5h5c5 0 8-3 8-8C42 14 34 6 24 6z" /><circle cx="15" cy="22" r="2.200" fill="currentColor" /><circle cx="22" cy="14" r="2.200" fill="currentColor" /><circle cx="32" cy="16" r="2.200" fill="currentColor" /></g>
+    <!-- fun: a smiling face -->
+    <g v-else-if="id === 'fun'"><circle cx="24" cy="24" r="18" /><circle cx="17.500" cy="20" r="2.200" fill="currentColor" /><circle cx="30.500" cy="20" r="2.200" fill="currentColor" /><path d="M15 28c2 6 16 6 18 0" /></g>
     <!-- tech: chip -->
     <g v-else><rect x="12" y="12" width="24" height="24" rx="4" /><rect x="19" y="19" width="10" height="10" rx="1.500" /><path d="M18 5v7M24 5v7M30 5v7M18 36v7M24 36v7M30 36v7M5 18h7M5 24h7M5 30h7M36 18h7M36 24h7M36 30h7" /></g>
   </svg>

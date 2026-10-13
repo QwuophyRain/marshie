@@ -9,6 +9,8 @@ import re
 from collections import Counter, defaultdict
 from difflib import SequenceMatcher
 
+from .i18n import fold
+
 STOPWORDS = set("""
 a an the and or but if then so of to in on at by for with from into onto up down out over about
 is are was were be been being am do does did done doing have has had having
@@ -19,12 +21,64 @@ please tell explain describe say know give show let lets just really very also t
 as than not no yes ok okay hey marshie
 """.split())
 
+# Small word lists for French, Spanish and German (written without accents: everything is folded first).
+STOPWORDS_BY_LANG = {
+    "en": STOPWORDS,
+    "fr": set("""
+        le la les l un une des du de d au aux et ou mais si donc alors que qu qui quoi quel quelle quels quelles
+        ou est sont etait etaient fut sera seront ete etre suis es sommes etes ont a ai as avons avez fait faire dans sur sous avec sans pour par en y
+        ce cet cette ces c cest mon ma mes ton ta tes son sa ses notre nos votre vos leur leurs
+        je j tu il elle on nous vous ils elles me m te t se s moi toi lui comment pourquoi quand combien
+        dis dit explique expliques parle parles montre peux peut veux veut sais sait
+        stp svp merci oui non ok salut marshie tout tous plus tres aussi ne pas n
+    """.split()),
+    "es": set("""
+        el la los las lo un una unos unas de del al y e o u pero si que qu quien quienes cual cuales cuyo
+        es son era eran fue fueron sera seran ser estar esta estan este esto estos estas ese eso esa esos esas aquel
+        en con sin por para sobre entre desde hasta como cuando donde cuanto cuanta cuantos cuantas porque por
+        mi mis tu tus su sus nuestro nuestra nuestros nuestras me te se nos le les yo tu el ella nosotros ellos ellas
+        hay ha han he has hemos puedes puede quiero dime decir explica explicame cuentame muestrame
+        por favor gracias si no vale hola marshie muy mas tambien ya
+    """.split()),
+    "de": set("""
+        der die das den dem des ein eine einen einem einer eines und oder aber wenn dass ob als wie was wer wen wem
+        wessen welche welcher welches welchen wo wann warum wieso weshalb wohin woher wieviel wieviele
+        ist sind war waren gewesen sein bin bist seid hat habe hast haben hatte wird werden wurde
+        in im ins an am auf aus bei mit nach von vom zu zum zur fur uber unter vor hinter neben zwischen durch gegen ohne um
+        ich du er sie es wir ihr mich mir dich dir ihn ihm uns euch ihnen mein meine meinen meinem meiner dein deine
+        mal kann kannst konnen magst mochte sag sage sagen erklar erklare erklaren zeig zeige erzahl erzahle
+        bitte danke ja nein ok hallo marshie auch sehr noch nicht nur schon dies diese dieser dieses
+    """.split()),
+}
+
 _word = re.compile(r"[a-z0-9]+")
 
 
-def stem(word: str) -> str:
+def stem(word: str, lang: str = "en") -> str:
     """Very light stemmer, then truncation so independ/independence/independent all agree."""
     w = word
+    if lang == "fr":
+        if len(w) > 4 and w.endswith("aux"):
+            w = w[:-3] + "al"
+        elif len(w) > 3 and w.endswith(("s", "x")) and not w.endswith("ss"):
+            w = w[:-1]
+        if len(w) > 4 and w.endswith("e"):
+            w = w[:-1]
+        return w[:7]
+    if lang == "es":
+        if len(w) > 4 and w.endswith("es"):
+            w = w[:-2]
+        elif len(w) > 3 and w.endswith("s"):
+            w = w[:-1]
+        if len(w) > 4 and w[-1] in "aoe":
+            w = w[:-1]
+        return w[:7]
+    if lang == "de":
+        for suffix in ("ern", "en", "er", "es", "e", "n", "s"):
+            if len(w) > len(suffix) + 3 and w.endswith(suffix):
+                w = w[: -len(suffix)]
+                break
+        return w[:7]
     if len(w) > 4 and w.endswith("ies"):
         w = w[:-3] + "y"
     elif len(w) > 4 and w.endswith(("sses", "xes", "zes", "ches", "shes")):
@@ -42,22 +96,38 @@ _possessive = re.compile(r"'s\b")
 
 
 def _straight(text: str) -> str:
-    """Phones and tablets type curly apostrophes; treat them like the plain one."""
-    return text.lower().replace("’", "'").replace("‘", "'").replace("`", "'")
+    """Phones and tablets type curly apostrophes; treat them like the plain one. Accents are dropped (École = Ecole)."""
+    return fold(text).replace("’", "'").replace("‘", "'").replace("`", "'")
 
 
-def tokens(text: str, keep_stop: bool = False) -> list[str]:
-    text = _possessive.sub("", _straight(text))          # "Esi's plant" -> "esi plant"
-    words = _word.findall(text.replace("'", ""))
-    return [stem(w) for w in words if keep_stop or w not in STOPWORDS]
+def tokens(text: str, keep_stop: bool = False, lang: str = "en") -> list[str]:
+    text = _straight(text)
+    if lang == "en":
+        text = _possessive.sub("", text)                    # "Esi's plant" -> "esi plant"
+        words = _word.findall(text.replace("'", ""))
+    else:
+        words = _word.findall(text.replace("'", " "))      # "l'école" -> "l ecole"
+    stop = STOPWORDS_BY_LANG.get(lang, STOPWORDS)
+    return [stem(w, lang) for w in words if keep_stop or w not in stop]
 
 
-def normalize(text: str) -> str:
-    return " ".join(_word.findall(_straight(text).replace("'", "")))
+def without_stopwords(text: str, lang: str) -> str:
+    """The question with the little words of its own language taken out ("Qui était Kwame Nkrumah ?" -> "kwame nkrumah"),
+    so it can be looked up in another language's knowledge, where only names and numbers can match."""
+    t = _straight(text)
+    words = _word.findall(t.replace("'", " "))
+    stop = STOPWORDS_BY_LANG.get(lang, STOPWORDS)
+    return " ".join(w for w in words if w not in stop)
+
+
+def normalize(text: str, lang: str = "en") -> str:
+    t = _straight(text)
+    return " ".join(_word.findall(t.replace("'", "" if lang == "en" else " ")))
 
 
 class Index:
-    def __init__(self, entries: list[dict], weights: dict | None = None):
+    def __init__(self, entries: list[dict], weights: dict | None = None, lang: str = "en"):
+        self.lang = lang
         self.entries = entries
         self.weights = weights or {}
         self.n = len(entries)
@@ -70,13 +140,13 @@ class Index:
         self.exact: dict[str, list[int]] = defaultdict(list)   # normalized question -> entry numbers
 
         for i, e in enumerate(entries):
-            q_tokens = tokens(" ".join([e["question"], *e.get("aliases", [])]))
-            k_tokens = tokens(" ".join(e.get("keywords", [])) + " " + e.get("category", ""))
-            a_tokens = tokens(e["answer"])
+            q_tokens = tokens(" ".join([e["question"], *e.get("aliases", [])]), lang=lang)
+            k_tokens = tokens(" ".join(e.get("keywords", [])) + " " + e.get("category", ""), lang=lang)
+            a_tokens = tokens(e["answer"], lang=lang)
             self.qk.append(set(q_tokens) | set(k_tokens))
             self.ans.append(set(a_tokens))
             self.passage.append(e.get("kind") == "passage")
-            self.norm_q.append([normalize(e["question"]), *[normalize(a) for a in e.get("aliases", [])]])
+            self.norm_q.append([normalize(e["question"], lang), *[normalize(a, lang) for a in e.get("aliases", [])]])
             for nq in set(self.norm_q[-1]):
                 if nq:
                     self.exact[nq].append(i)
@@ -108,7 +178,7 @@ class Index:
 
     def search(self, query: str, k: int = 5) -> list[dict]:
         """Return up to k hits: {entry, confidence, bm25}. Best first."""
-        q_norm = normalize(query)
+        q_norm = normalize(query, self.lang)
         if not self.n or not q_norm:
             return []
 
@@ -120,7 +190,7 @@ class Index:
             return [{"entry": self.entries[i], "confidence": round(min(r, 1.0), 4), "raw": r, "bm25": 0.0}
                     for r, i in raw[:k]]
 
-        q_tokens = list(dict.fromkeys(tokens(query)))
+        q_tokens = list(dict.fromkeys(tokens(query, lang=self.lang)))
         if not q_tokens:
             return []
 
